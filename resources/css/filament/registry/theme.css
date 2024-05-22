@@ -1,0 +1,7 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+div.grid section.fi-section {
+    @apply h-full;
+}
