@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\RepositoryResource\Pages;
 
 use App\Filament\Resources\RepositoryResource;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Split;
@@ -25,8 +26,10 @@ class CreateRepository extends CreateRecord
             ->schema([
                 Split::make([
                     Section::make([
+                        Hidden::make('namespace')
+                            ->dehydrateStateUsing(fn() => auth()->user()->namespace),
                         TextInput::make('name')
-                            ->prefix(fn() => auth()->user()->namespace . ' /')
+                            ->prefix(fn(Get $get) => auth()->user()->namespace . ' /')
                             ->live()
                             ->alphaDash()
                             ->required(),
@@ -54,7 +57,6 @@ class CreateRepository extends CreateRecord
                             ->formatStateUsing(fn(Get $get) => ['name' => ($get('name'))])
                     ])->grow(false)
                 ])->columnSpanFull()
-
             ]);
     }
 }

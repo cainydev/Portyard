@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\JWT;
+use Cainy\Dockhand\Facades\Scope;
+use Cainy\Dockhand\Facades\Token;
+use Cainy\Dockhand\Resources\ScopeResourceType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Lcobucci\JWT\Token\Builder;
+use function abort;
+use function config;
+use function response;
 
 class TokenController extends Controller
 {
@@ -26,60 +30,26 @@ class TokenController extends Controller
             ]);
         }
 
-        if ($request->has('scope')) {
-            Log::channel('stderr')->info('Found scope:');
-
-            $scope = str($request->get('scope'))->explode(':');
-            $resourceType = $scope[0];
-            $resourceName = $scope[1];
-            $actions = str($scope[2])->explode(',');
-
-            Log::channel('stderr')
-                ->info('Scope: ' . $resourceType . ':' . $resourceName . ':' . $actions->join(','));
-
-            if ($resourceType == 'registry') {
-                if ($resourceName == 'catalog') {
-                    $token = JWT::createToken(function (Builder $builder) {
-                        return $builder
-                            ->issuedBy(config('registry.auth_name'))
-                            ->permittedFor(config('registry.registry_name'))
-                            ->relatedTo(auth()->user()->id)
-                            ->withClaim('access', [
-                                [
-                                    'type' => 'registry',
-                                    'name' => 'catalog',
-                                    'actions' => ['*']
-                                ]
-                            ]);
-                    });
-
-                    return response()->json([
-                        'token' => $token->toString(),
-                    ]);
-                }
-            } else if ($resourceType == 'repository') {
-                $allowedScopes = auth()->user()->intersectClaims($resourceName, $actions);
-
-                $token = JWT::createToken(function (Builder $builder) use ($resourceName, $allowedScopes) {
-                    return $builder
-                        ->issuedBy(config('registry.auth_name'))
-                        ->permittedFor(config('registry.registry_name'))
-                        ->relatedTo(auth()->user()->id)
-                        ->withClaim('access', [
-                            [
-                                'type' => 'repository',
-                                'name' => $resourceName,
-                                'actions' => $allowedScopes
-                            ]
-                        ]);
-                });
-
-                return response()->json([
-                    'token' => $token->toString(),
-                ]);
-            }
-        } else {
-            Log::channel('stderr')->error('Didn\'t have scope to work with..');
+        if (!$request->has('scope')) {
+            Log::channel('stderr')->error('No scope provided.');
         }
+
+        $requestedScope = Scope::fromString($request->get('scope'));
+        Log::channel('stderr')->info('Requested scope: ' . $requestedScope->toString());
+
+        switch ($requestedScope->getResourceType()) {
+            case ScopeResourceType::Registry:
+                abort(401, 'We currently don\'t support registry tokens such as catalog for normal users.');
+            case ScopeResourceType::Repository:
+                $repositoryName = $requestedScope->getResourceName();
+                $actions = $requestedScope->getActions();
+                break;
+
+            // TODO: Check if user has access to repository
+        }
+
+        return response()->json([
+            'token' => Token::withScope($requestedScope)->toString(),
+        ]);
     }
 }

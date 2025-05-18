@@ -14,14 +14,14 @@ http:
     X-Content-Type-Options: [ nosniff ]
 auth:
   token:
-    realm: http://localhost/auth/token
+    realm: http://localhost/token
     service: dockermeister_registry
     issuer: dockermeister_auth
     rootcertbundle: /root/certs/cert.pem
 notifications:
   endpoints:
     - name: EventListener
-      url: http://laravel/notify
+      url: http://laravel/dockhand/notify
       headers:
         Authorization: [ "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3MTY0MDQ1NDEsIm5iZiI6MTcxNjQwNDU0MSwiZXhwIjoxNzQ3OTQwNTQxLCJqdGkiOiJhNWFiNzE1My05NzI4LTQ4MDMtYmViNC0zYWE0NTUyODc2NWEiLCJpc3MiOiJkb2NrZXJtZWlzdGVyX2F1dGgiLCJhdWQiOiJkb2NrZXJtZWlzdGVyX3JlZ2lzdHJ5IiwiYWNjZXNzIjoibm90aWZ5In0.3oyIr1F4KeW0BkU3AakszbEPNqfX4yVENr1VWSBgxBOZA57j11V-3xEmOn98SGBNe3j8vkpJuFtUi9UL2dB98A" ]
       timeout: 500ms

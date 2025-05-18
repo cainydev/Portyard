@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Facades\JWT;
+use Cainy\Dockhand\Facades\TokenService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +27,7 @@ class HasValidNotifyToken
             abort(401);
         }
 
-        if (!JWT::validateToken($request->bearerToken(), function ($validator, $token) {
+        if (!TokenService::validateToken($request->bearerToken(), function ($validator, $token) {
             $validator->assert($token, new HasClaimWithValue('access', 'notify'));
         })) {
             Log::channel('stderr')->error('Notify: Faulty token.');

@@ -1,32 +1,28 @@
 <?php
 
-use App\Facades\JWT;
 use App\Http\Controllers\TokenController;
 use App\Http\Middleware\AuthenticateAccount;
-use App\Http\Middleware\HasValidNotifyToken;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Cainy\Dockhand\Facades\Scope;
+use Cainy\Dockhand\Facades\Token;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Lcobucci\JWT\Token\Builder;
 
 Route::get('/auth/token', [TokenController::class, 'entry'])
     ->middleware(AuthenticateAccount::class);
 
-Route::post('/notify', function (Request $request) {
-    Log::channel('stderr')->info($request->all());
-    return response('Thanks!', 200);
-})->middleware(HasValidNotifyToken::class)
-    ->withoutMiddleware(VerifyCsrfToken::class);
+Route::get('/token', function (Request $request) {
+    $token = $request->has('scope') ?
+        Token::withScope(Scope::fromString($request->get('scope'))) :
+        Token::create();
 
-Route::get('/generateToken', function (Request $request) {
-    $token = JWT::generalToken(function (Builder $builder) {
-        return $builder
-            ->issuedBy(config('registry.auth_name'))
-            ->permittedFor(config('registry.registry_name'))
-            ->withClaim('access', 'notify');
-    });
+    $token = $token
+        ->issuedBy(config('dockhand.authority_name'))
+        ->expiresAt(now()->addMinutes(5))
+        ->permittedFor(config('dockhand.registry_name'));
 
-    return $token->toString();
+    return response()->json([
+        'token' => $token->toString(),
+        'payload' => $token->get()->payload(),
+        'claims' => $token->get()->claims()->toString()
+    ]);
 });
-

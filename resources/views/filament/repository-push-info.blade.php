@@ -1,4 +1,4 @@
-@php($name = auth()->user()->namespace . '/' . (str($getState()['name'])->trim()->length() == 0 ? 'new-repo' : $getState()['name']))
+@php($name = $getState()['namespace'] . '/' . (str($getState()['name'])->trim()->length() == 0 ? 'new-repo' : $getState()['name']))
 
 <div class="flex flex-col gap-2">
     <h4 class="text-2xl font-semibold">Pushing images</h4>

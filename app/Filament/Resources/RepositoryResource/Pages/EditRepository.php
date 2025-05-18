@@ -4,12 +4,13 @@ namespace App\Filament\Resources\RepositoryResource\Pages;
 
 use App\Filament\Resources\RepositoryResource;
 use App\Models\Repository;
-use Filament\Actions;
 use Filament\Forms\Components\Actions as FormActions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
@@ -23,13 +24,17 @@ class EditRepository extends EditRecord
 {
     protected static string $resource = RepositoryResource::class;
 
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
     public function form(Form $form): Form
     {
         return $form->schema([
             Tabs::make('tabs')->tabs([
                 static::generalTab(),
                 static::tagsTab(),
-                static::collaboratorsTab(),
                 static::webhooksTab(),
                 static::settingsTab()
             ])
@@ -61,24 +66,40 @@ class EditRepository extends EditRecord
     public function tagsTab(): Tab
     {
         return Tab::make('Tags')->schema([
-
-        ]);
-    }
-
-    public function collaboratorsTab(): Tab
-    {
-        return Tab::make('Collaborators')->schema([
-            View::make('filament.text')->viewData(['text' => 'Coming soon!'])
+            Split::make([
+                Select::make('sort_by')
+                    ->options([
+                        'newest' => 'Newest',
+                        'oldest' => 'Oldest',
+                        'alphabetical' => 'A - Z',
+                        'reverse_alphabetical' => 'Z - A',
+                    ])
+                    ->default('newest')
+                    ->inlineLabel()
+                    ->grow(false),
+                TextInput::make('search')
+                    ->placeholder('Search tags')
+                    ->hiddenLabel()
+                    ->grow(false),
+            ]),
+            Repeater::make('tags')
+                ->relationship()
+                ->itemLabel(fn(array $state): ?string => $state['name'])
+                ->schema([
+                    TextInput::make('name')
+                        ->required()
+                        ->columnSpan(1),
+                    TextInput::make('description')
+                        ->columnSpan(1),
+                ])->columns()
         ]);
     }
 
     public function webhooksTab(): Tab
     {
         return Tab::make('Webhooks')->schema([
-            Section::make('Webhooks')->schema([
-                View::make('filament.text')->viewData(['text' => 'A webhook is an HTTP call-back triggered by a specific event. You can create a single webhook to start and connect multiple webhooks to further build out your workflow.']),
-                View::make('filament.text')->viewData(['text' => 'When an image is pushed to this repo, your workflows will kick off based on your specified webhooks.'])
-            ]),
+            View::make('filament.text')->viewData(['text' => 'A webhook is an HTTP call-back triggered by a specific event. You can create a single webhook to start and connect multiple webhooks to further build out your workflow.']),
+            View::make('filament.text')->viewData(['text' => 'When an image is pushed to this repo, your workflows will kick off based on your specified webhooks.']),
             Section::make('Active Webhooks')->schema([
                 Repeater::make('webhooks')
                     ->hiddenLabel()
@@ -137,7 +158,6 @@ class EditRepository extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
         ];
     }
 }

@@ -12,13 +12,9 @@ return new class extends Migration {
     {
         Schema::create('repositories', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')
-                ->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate()
-                ->references('id')
-                ->on('users');
+            $table->string('namespace');
             $table->string('name');
+            $table->string('path')->virtualAs("CONCAT(`namespace`, '/', `name`)");
             $table->text('description')->nullable();
             $table->longText('overview')->nullable();
             $table->boolean('public')->default(false);
