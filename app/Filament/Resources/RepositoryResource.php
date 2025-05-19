@@ -32,7 +32,15 @@ class RepositoryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->prefix(fn(Repository $record) => $record->user->namespace . '/')
+                    ->prefix(fn() => auth()->user()->namespace . '/')
+                    ->label('Name')
+                    ->searchable()
+                    ->width(300),
+                TextColumn::make('public')
+                    ->label('Visibility')
+                    ->icon(fn($state) => $state ? 'heroicon-o-globe-alt' : 'heroicon-o-lock-closed')
+                    ->iconColor(fn($state) => $state ? 'success' : 'info')
+                    ->formatStateUsing(fn($state) => $state ? 'Public' : 'Private')
             ])
             ->actions([
                 EditAction::make(),
@@ -46,7 +54,10 @@ class RepositoryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [RelationManagers\UsersRelationManager::class];
+        return [
+            RelationManagers\UsersRelationManager::class,
+            RelationManagers\TagsRelationManager::class,
+        ];
     }
 
 

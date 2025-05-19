@@ -28,7 +28,8 @@
         "lcobucci/clock": "^3.2",
         "lcobucci/jwt": "^5.3",
         "phpseclib/phpseclib": "^3.0",
-        "ramsey/uuid": "^4.7"
+        "ramsey/uuid": "^4.7",
+        "saade/filament-extra": "^3.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
