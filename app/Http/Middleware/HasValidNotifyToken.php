@@ -20,21 +20,21 @@ class HasValidNotifyToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::channel('stderr')->info('Notify: Trying to verify token...');
+        Log::info('Notify: Trying to verify token...');
 
         if (!$request->bearerToken()) {
-            Log::channel('stderr')->error('Notify: Missing token.');
+            Log::error('Notify: Missing token.');
             abort(401);
         }
 
         if (!TokenService::validateToken($request->bearerToken(), function ($validator, $token) {
             $validator->assert($token, new HasClaimWithValue('access', 'notify'));
         })) {
-            Log::channel('stderr')->error('Notify: Faulty token.');
+            Log::error('Notify: Faulty token.');
             abort(401);
         }
 
-        Log::channel('stderr')->info('Notify: Token verified!');
+        Log::info('Notify: Token verified!');
         return $next($request);
     }
 }

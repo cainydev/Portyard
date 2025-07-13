@@ -1,0 +1,102 @@
+#############################################
+# Traefik Static Configuration - Production #
+#############################################
+
+# Global configuration
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# API and Dashboard (secured for production)
+api:
+  dashboard: true
+  insecure: false
+
+# Entry Points
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entrypoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        options: modern
+
+# Certificate Resolvers (Let's Encrypt production)
+certificatesResolvers:
+  le:  # Matching your existing certresolver name
+    acme:
+      email: ${LETSENCRYPT_EMAIL}
+      storage: /letsencrypt/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory
+      httpChallenge:
+        entryPoint: web
+
+# Providers
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    watch: true
+    network: sail  # Using your existing network
+
+# Security Headers (production)
+http:
+  middlewares:
+    security-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+
+# TLS Options
+tls:
+  options:
+    modern:
+      minVersion: "VersionTLS12"
+      maxVersion: "VersionTLS13"
+      cipherSuites:
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+
+# Logging (less verbose for production)
+log:
+  level: INFO
+  format: json
+
+# Access Logs
+accessLog:
+  format: json
+  filters:
+    statusCodes:
+      - "400-499"
+      - "500-599"
+
+# Metrics
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    addRoutersLabels: true
+
+# Health Check
+ping:
+  entryPoint: web

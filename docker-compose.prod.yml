@@ -1,0 +1,122 @@
+services:
+  # ---------- Traefik reverse proxy ----------
+  traefik:
+    image: traefik:v3.4
+    container_name: traefik-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./certs/public:/certs"
+      - "letsencrypt:/letsencrypt"
+      - "./traefik:/etc/traefik"
+      - "./logs:/var/log/traefik"
+    networks:
+      - sail
+    environment:
+      LETSENCRYPT_EMAIL: '${LETSENCRYPT_EMAIL}'
+    command:
+      - "--configFile=/etc/traefik/traefik.prod.yml"
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=sail"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${APP_DOMAIN:-portyard.de}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=le"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      # Generate password with: htpasswd -nb admin yourpassword
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2y$$10$$..." # Replace with actual hash
+
+  # ---------- Laravel web ui ----------
+  laravel:
+    container_name: laravel-prod
+    build:
+      context: ./vendor/laravel/sail/runtimes/8.4
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: sail-8.3/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: 'off'  # Disabled in production
+      IGNITION_LOCAL_SITES_PATH: '${PWD}'
+    volumes:
+      - '../laravel-dockhand:/var/www/html/vendor/cainy/laravel-dockhand'
+      - '.:/var/www/html'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=sail"
+      - "traefik.http.routers.laravel.rule=Host(`${APP_DOMAIN:-portyard.de}`)"
+      - "traefik.http.routers.laravel.entrypoints=websecure"
+      - "traefik.http.routers.laravel.tls.certresolver=le"
+      - "traefik.http.services.laravel.loadbalancer.server.port=80"
+      - "traefik.http.routers.laravel.middlewares=security-headers"
+
+  # ---------- MySQL database ----------
+  mysql:
+    container_name: mysql-prod
+    image: 'mysql/mysql-server:8.0'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'sail-mysql-prod:/var/lib/mysql'
+      - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+    networks:
+      - sail
+    restart: unless-stopped
+    healthcheck:
+      test: 'CMD mysqladmin ping -p${DB_PASSWORD}'
+      retries: 3
+      timeout: 5s
+
+  # ---------- CNCF Container registry ----------
+  registry:
+    container_name: registry-prod
+    restart: unless-stopped
+    image: registry:2
+    environment:
+      REGISTRY_STORAGE_S3_ACCESSKEY: '${HETZNER_S3_ACCESS_KEY}'
+      REGISTRY_STORAGE_S3_SECRETKEY: '${HETZNER_S3_SECRET_KEY}'
+      REGISTRY_STORAGE_S3_REGIONENDPOINT: '${HETZNER_S3_ENDPOINT}'
+      REGISTRY_STORAGE_S3_REGION: '${HETZNER_S3_REGION}'
+      REGISTRY_STORAGE_S3_BUCKET: '${HETZNER_S3_BUCKET}'
+    networks:
+      - sail
+    volumes:
+      - registry-prod:/var/lib/registry
+      - ./registry.yml:/etc/docker/registry/config.yml
+      - ./certs/public/:/root/certs/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`${APP_DOMAIN:-portyard.de}`) && PathPrefix(`/v2/`)"
+      - "traefik.http.routers.registry.entrypoints=websecure"
+      - "traefik.http.routers.registry.tls.certresolver=le"
+      - "traefik.http.services.registry.loadbalancer.server.port=5000"
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  sail-mysql-prod:
+    driver: local
+  registry-prod:
+    driver: local
+  letsencrypt:
+    driver: local

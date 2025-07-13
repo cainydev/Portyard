@@ -12,21 +12,21 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('repository_user', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
 
             $table->foreignUuid('user_id')
-                ->constrained('users')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate()
+                ->constrained()
                 ->references('id')
-                ->on('users');
+                ->on('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignUuid('repository_id')
-                ->constrained('repositories')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate()
+                ->constrained()
                 ->references('id')
-                ->on('repositories');
+                ->on('repositories')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->enum('role', Roles::values());
 

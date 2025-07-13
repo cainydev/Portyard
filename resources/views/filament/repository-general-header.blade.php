@@ -1,10 +1,8 @@
-@php($repo = $getState())
-
 <div class="flex gap-12 justify-between flex-wrap">
     <div class="flex flex-col gap-2">
         <span class="flex items-center gap-2">
-            <h2 class="text-3xl font-semibold">{{ $repo['path'] }}</h2>
-            @if($repo['public'])
+            <h2 class="text-3xl font-semibold">{{ $repository->path }}</h2>
+            @if($repository->public)
                 <x-tooltip text="Public">
                     <x-heroicon-s-globe-europe-africa class="w-8 h-8"/>
                 </x-tooltip>
@@ -14,6 +12,6 @@
                 </x-tooltip>
             @endif
         </span>
-        <p class="text-gray-400">Created about {{ (new Carbon\Carbon($repo['created_at']))->diffForHumans() }}</p>
+        <p class="text-gray-400">Created about {{ $repository->created_at->diffForHumans() }}</p>
     </div>
 </div>

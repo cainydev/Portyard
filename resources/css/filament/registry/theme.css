@@ -5,3 +5,12 @@
 div.grid section.fi-section {
     @apply h-full;
 }
+
+nav.fi-tabs {
+    @apply max-w-fit mx-0 gap-x-1.5;
+}
+
+.fi-ta-ctn.divide-y > :not([hidden]) ~ :not([hidden]) {
+    @apply border-t-0 border-b-0;
+}
+

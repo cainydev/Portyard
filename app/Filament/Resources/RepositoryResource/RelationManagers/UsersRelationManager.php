@@ -5,7 +5,6 @@ namespace App\Filament\Resources\RepositoryResource\RelationManagers;
 use App\Enums\Roles;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
@@ -76,15 +75,6 @@ class UsersRelationManager extends RelationManager
                     ->label('Revoke')
                     ->modalHeading(fn(User $record) => "Revoke {$record->name}'s role")
                     ->hidden(fn(User $record) => $record->id === auth()->id()),
-            ]);
-    }
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('role')
-                    ->required()
             ]);
     }
 }

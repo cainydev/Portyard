@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: "/etc/traefik/certs/portyard.local+2.pem"
+      keyFile: "/etc/traefik/certs/portyard.local+2-key.pem"

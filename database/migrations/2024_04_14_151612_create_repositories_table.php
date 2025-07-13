@@ -12,12 +12,18 @@ return new class extends Migration {
     {
         Schema::create('repositories', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->string('namespace');
             $table->string('name');
             $table->string('path')->virtualAs("CONCAT(`namespace`, '/', `name`)");
             $table->text('description')->nullable();
             $table->longText('overview')->nullable();
             $table->boolean('public')->default(false);
+
+            $table->unique(['namespace', 'name'], 'unique_repository_path');
+            $table->index(['namespace', 'name'], 'index_repository_namespace_name');
+            $table->index(['path'], 'index_repository_path');
+
             $table->timestamps();
         });
     }

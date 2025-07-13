@@ -12,14 +12,32 @@ return new class extends Migration {
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->foreignUuid('repository_id')
                 ->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate()
                 ->references('id')
-                ->on('repositories');
+                ->on('repositories')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignUuid('manifest_id')
+                ->constrained()
+                ->references('id')
+                ->on('manifests')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignUuid('user_id')
+                ->constrained()
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->string('name');
-            $table->string('digest');
+            $table->dateTime('last_pushed');
+
+            $table->unique(['repository_id', 'name']);
             $table->timestamps();
         });
     }

@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /certs/
+/letsencrypt/
 /vendor
 .env
 .env.backup
@@ -18,3 +19,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+**/caddy
+frankenphp
+frankenphp-worker.php

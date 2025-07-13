@@ -11,7 +11,7 @@
 <div
     {{
         $attributes->class([
-            'fi-ta-header flex flex-col gap-3 p-4 sm:px-6 sm:flex-row sm:items-center',
+            'fi-ta-header flex flex-col gap-3 p-4 sm:px-6 sm:flex-row sm:items-center border-b border-gray-300 dark:border-gray-800',
         ])
     }}
 >
@@ -48,8 +48,9 @@
             <x-filament-tables::actions
                 :actions="$actions"
                 :alignment="Alignment::Start"
-                wrap
+                :wrap="true"
                 class=""
             />
         @endif
     </div>
+</div>

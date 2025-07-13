@@ -5,25 +5,35 @@ log:
 storage:
   cache:
     blobdescriptor: inmemory
+#  s3:
+#    rootdirectory: /registry
+#    forcepathstyle: true
+#    accelerate: false
+#    secure: true
+#    v4auth: true
+#    usedualstack: false
+#    loglevel: debug
   filesystem:
     rootdirectory: /var/lib/registry
 http:
   addr: :5000
   secret: devsecret
+  debug:
+    addr: :5001
   headers:
-    X-Content-Type-Options: [ nosniff ]
+    X-Content-Type-Options: [ "nosniff" ]
 auth:
   token:
-    realm: http://localhost/token
-    service: dockermeister_registry
-    issuer: dockermeister_auth
     rootcertbundle: /root/certs/cert.pem
+    realm: 'https://portyard.local/auth/token'
+    service: portyard-registry
+    issuer: portyard-auth
 notifications:
   endpoints:
     - name: EventListener
-      url: http://laravel/dockhand/notify
+      url: 'http://portyard-laravel/dockhand/notify'
       headers:
-        Authorization: [ "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3MTY0MDQ1NDEsIm5iZiI6MTcxNjQwNDU0MSwiZXhwIjoxNzQ3OTQwNTQxLCJqdGkiOiJhNWFiNzE1My05NzI4LTQ4MDMtYmViNC0zYWE0NTUyODc2NWEiLCJpc3MiOiJkb2NrZXJtZWlzdGVyX2F1dGgiLCJhdWQiOiJkb2NrZXJtZWlzdGVyX3JlZ2lzdHJ5IiwiYWNjZXNzIjoibm90aWZ5In0.3oyIr1F4KeW0BkU3AakszbEPNqfX4yVENr1VWSBgxBOZA57j11V-3xEmOn98SGBNe3j8vkpJuFtUi9UL2dB98A" ]
+        Authorization: [ "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjVWM086VzcyRjpERE9XOldZNkQ6SUVKMzoyS1I1OjVNSE06WUdMSjpWWllDOklWVkY6STc0SDpDSk9IIn0.eyJqdGkiOiI1Y2MwMTBkNi0xODYxLTQ2OGUtOTA0Ni03MjIzMDAyN2Y1MzUiLCJhY2Nlc3MiOlsibm90aWZ5Il0sImlhdCI6MTc1MjI0Mzc2NH0.dN5TTgv3C0FSm3GyxbYnjrDcCaQ7fmuAGmZtonByP4tb_H6H3ZtJOELRQCP8wc0g0lb94IEe2KsAWbojK6Numw" ]
       timeout: 500ms
       threshold: 5
       backoff: 1s

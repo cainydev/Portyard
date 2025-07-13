@@ -36,27 +36,37 @@ class RepositoryPolicy
     }
 
     /**
-     * Determine whether the user can edit the general settings.
+     * Determine whether the user can delete from the repo.
      */
-    public function editGeneral(User $user, Repository $repository): bool
+    public function delete(User $user, Repository $repository): bool
+    {
+        return $repository->developers->contains($user)
+            || $repository->maintainers->contains($user)
+            || $repository->owners->contains($user);
+    }
+
+    /**
+     * Determine whether the user can edit/view the general settings.
+     */
+    public function manageGeneral(User $user, Repository $repository): bool
     {
         return $repository->maintainers->contains($user)
             || $repository->owners->contains($user);
     }
 
     /**
-     * Determine whether the user can edit the webhook settings.
+     * Determine whether the user can edit/view the webhook settings.
      */
-    public function editWebhooks(User $user, Repository $repository): bool
+    public function manageWebhooks(User $user, Repository $repository): bool
     {
         return $repository->maintainers->contains($user)
             || $repository->owners->contains($user);
     }
 
     /**
-     * Determine whether the user can edit the permission settings.
+     * Determine whether the user can edit/view the permission settings.
      */
-    public function editPermissions(User $user, Repository $repository): bool
+    public function manageCollaborators(User $user, Repository $repository): bool
     {
         return $repository->owners->contains($user);
     }
@@ -66,14 +76,22 @@ class RepositoryPolicy
      */
     public function changeVisibility(User $user, Repository $repository): bool
     {
+        return $this->manageSettings($user, $repository);
+    }
+
+    /**
+     * Determine whether the user can edit/view the settings;
+     */
+    public function manageSettings(User $user, Repository $repository): bool
+    {
         return $repository->owners->contains($user);
     }
 
     /**
      * Determine whether the user can permanently delete the repo.
      */
-    public function delete(User $user, Repository $repository): bool
+    public function deleteRepository(User $user, Repository $repository): bool
     {
-        return $repository->owners->contains($user);
+        return $this->manageSettings($user, $repository);
     }
 }
