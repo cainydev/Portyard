@@ -3,10 +3,15 @@
 use App\Http\Controllers\TokenController;
 use App\Http\Middleware\AuthenticateAccount;
 use App\Models\User;
+use Cainy\Dockhand\Facades\Dockhand;
 use Cainy\Dockhand\Facades\Scope;
 use Cainy\Dockhand\Facades\Token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/test-tag', function () {
+    return \App\Models\Tag::all();
+});
 
 Route::get('/auth/token', [TokenController::class, 'entry'])
     ->middleware(AuthenticateAccount::class);

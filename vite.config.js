@@ -1,6 +1,5 @@
 import {defineConfig} from 'vite';
 import laravel from 'laravel-vite-plugin';
-import fs from 'fs';
 
 const host = 'portyard.local';
 
@@ -16,14 +15,4 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    server: {
-        host: '0.0.0.0',
-        hmr: { host: 'portyard.local' },
-        https: {
-            key: fs.readFileSync(`./traefik/certs/portyard.local+2-key.pem`),
-            cert: fs.readFileSync(`./traefik/certs/portyard.local+2.pem`),
-        },
-        port: 5173,
-        strictPort: true,
-    },
 });
