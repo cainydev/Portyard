@@ -1,8 +1,11 @@
-<p align="center">
-  <img src="resources/images/portyard.png" alt="portyard" width="120">
-</p>
+<br />
+<div align="center">
+    <a href="https://github.com/othneildrew/Best-README-Template">
+        <img src="resources/images/portyard_v2.png" alt="portyard" width="120">
+    </a>
 
-<p align="center" style="font-size:1.25rem;font-weight:600">Portyard</p>
+    <h3 align="center">Portyard</h3>
+</div>
 
 A container image registry and management UI built on Laravel and Filament.
 
@@ -10,10 +13,10 @@ A container image registry and management UI built on Laravel and Filament.
 
 To push an image to the official hosted service:
 
-1. Create an account at [portyard.de](https://portyard.de) and create and repository.
+1. Create an account at [https://portyard.de](https://portyard.de) and create and repository.
 
 2. Tag the image:
-   docker tag <local-image> portyard.de/<username>/<repository>:<tag>
+   docker tag \<local-image\> portyard.de/\<username\>/\<repository\>:\<tag\>
 
    Example:
    docker tag my-app:latest portyard.de/myuser/my-app:1.0.0
@@ -22,9 +25,9 @@ To push an image to the official hosted service:
    docker login portyard.de
 
 4. Push:
-   docker push portyard.de/<username>/<repository>:<tag>
+   docker push portyard.de/\<username\>/\<repository\>:\<tag\>
 
-Replace <username>, <repository>, and <tag> with your values.
+Replace \<username\>, \<repository\>, and \<tag\> with your values.
 
 ## Self-hosting (minimal)
 
@@ -40,4 +43,4 @@ See the LICENSE file in this repository.
 
 ## Contact
 
-Report issues via GitHub Issues or reach out on GitHub: @cainydev
+Report issues via GitHub Issues or reach out on GitHub: [@cainydev](https://github.com/cainydev)
