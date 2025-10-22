@@ -13,18 +13,18 @@ To push an image to the official hosted service:
 1. Create an account at [https://portyard.de](https://portyard.de) and create and repository.
 
 2. Tag the image:
-   docker tag \<local-image\> portyard.de/\<username\>/\<repository\>:\<tag\>
+   `docker tag <local-image> portyard.de/<username>/<repository>:<tag>`
 
    Example:
-   docker tag my-app:latest portyard.de/myuser/my-app:1.0.0
+   `docker tag my-app:latest portyard.de/myuser/my-app:1.0.0`
 
 3. Authenticate:
-   docker login portyard.de
+   `docker login portyard.de`
 
 4. Push:
-   docker push portyard.de/\<username\>/\<repository\>:\<tag\>
+   `docker push portyard.de/<username>/<repository>:<tag>`
 
-Replace \<username\>, \<repository\>, and \<tag\> with your values.
+Replace `<username>`, `<repository>`, and `<tag>` with your values.
 
 ## Self-hosting (minimal)
 
