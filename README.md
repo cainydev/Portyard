@@ -1,9 +1,6 @@
-<br />
-<div align="center">
-    <img src="resources/images/portyard_v2.png" alt="portyard" width="120">
+<img src="resources/images/portyard_v2.png" alt="portyard" width="120">
 
-    <h3 align="center">Portyard</h3>
-</div>
+# Portyard Registry
 
 A container image registry and management UI built on Laravel and Filament.
 
