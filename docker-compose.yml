@@ -41,6 +41,7 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
             XDG_CONFIG_HOME: "/var/www/html/config"
             XDG_DATA_HOME: "/var/www/html/data"
+            APP_URL: '${APP_URL}'
         ports:
             - "5173:5173"
         volumes:
@@ -55,6 +56,7 @@ services:
             - "traefik.http.routers.laravel.entrypoints=websecure"
             - "traefik.http.routers.laravel.tls=true"
             - "traefik.http.routers.laravel.service=laravel-web"
+            - "traefik.http.routers.laravel.priority=10"
             - "traefik.http.services.laravel-web.loadbalancer.server.port=80"
 
 

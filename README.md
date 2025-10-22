@@ -1,8 +1,6 @@
 <br />
 <div align="center">
-    <a href="https://github.com/othneildrew/Best-README-Template">
-        <img src="resources/images/portyard_v2.png" alt="portyard" width="120">
-    </a>
+    <img src="resources/images/portyard_v2.png" alt="portyard" width="120">
 
     <h3 align="center">Portyard</h3>
 </div>
