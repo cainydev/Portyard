@@ -2,13 +2,18 @@
 
 namespace App\Filament\Resources\RepositoryResource\RelationManagers;
 
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\AttachAction;
+use Filament\Forms\Components\Select;
+use Filament\Actions\EditAction;
+use Filament\Support\Enums\Width;
+use Filament\Actions\DetachAction;
 use App\Enums\Roles;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
-use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Table;
 use function auth;
 use function collect;
@@ -31,17 +36,17 @@ class UsersRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('name'),
+                TextColumn::make('role')
                     ->label('Role')
                     ->formatStateUsing(fn(string $state): string => Roles::array()[$state])
                     ->badge(),
-                Tables\Columns\IconColumn::make('accepted')
+                IconColumn::make('accepted')
                     ->default('true')
                     ->boolean()
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->color('primary')
                     ->label('Invite Collaborator')
                     ->icon('heroicon-s-user-plus')
@@ -55,23 +60,23 @@ class UsersRelationManager extends RelationManager
                             ->label('User')
                             ->placeholder('Search a user')
                             ->required(),
-                        Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->label('Role')
                             ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
                     ])
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->hidden(fn(User $record) => $record->id === auth()->id())
                     ->modalHeading(fn(User $record) => "Edit {$record->name}'s role")
-                    ->form(fn(Tables\Actions\EditAction $action): array => [
-                        Forms\Components\Select::make('role')
+                    ->schema(fn(EditAction $action): array => [
+                        Select::make('role')
                             ->hiddenLabel()
                             ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
-                    ])->modalWidth(MaxWidth::Medium),
-                Tables\Actions\DetachAction::make()
+                    ])->modalWidth(Width::Medium),
+                DetachAction::make()
                     ->label('Revoke')
                     ->modalHeading(fn(User $record) => "Revoke {$record->name}'s role")
                     ->hidden(fn(User $record) => $record->id === auth()->id()),

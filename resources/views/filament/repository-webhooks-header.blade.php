@@ -25,12 +25,12 @@
             </div>
         </div>
 
-        @if ($actions)
-            <x-filament-tables::actions
-                :actions="$actions"
-                :alignment="Alignment::Start"
-                :wrap="true"
-                class=""/>
+        @if(filled($actions))
+            <div class="flex items-center justify-start gap-4">
+                @foreach ($actions as $action)
+                    {{ $action }}
+                @endforeach
+            </div>
         @endif
     </div>
 </div>

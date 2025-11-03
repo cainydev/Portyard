@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Repository;
 use Cainy\Dockhand\Enums\ScopeResourceType;
 use Cainy\Dockhand\Facades\Scope;
@@ -57,7 +58,7 @@ class TokenController extends Controller
             $requestedScope = Scope::fromString($request->get('scope'));
             Log::info('Parsed scope.');
             Log::info('Requested scope: ' . $requestedScope->toString());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to parse scope: ' . $e->getMessage());
             abort(400, 'Invalid scope format.');
         }

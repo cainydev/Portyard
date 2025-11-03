@@ -1,6 +1,7 @@
-@import '/vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
 
-@config 'tailwind.config.js';
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
 
 div.grid section.fi-section {
     @apply h-full;
@@ -13,4 +14,3 @@ nav.fi-tabs {
 .fi-ta-ctn.divide-y > :not([hidden]) ~ :not([hidden]) {
     @apply border-t-0 border-b-0;
 }
-

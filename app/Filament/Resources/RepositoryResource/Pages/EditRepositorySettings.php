@@ -4,19 +4,35 @@ namespace App\Filament\Resources\RepositoryResource\Pages;
 
 use App\Filament\Resources\RepositoryResource;
 use App\Models\Repository;
-use Filament\Forms\Components\Actions as FormActions;
-use Filament\Forms\Components\Section;
+use Filament\Actions\Action;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\View;
-use Filament\Forms\Form;
+use Filament\Panel;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\PageRegistration;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route as RouteFacade;
 
 class EditRepositorySettings extends EditRecord
 {
     protected static string $resource = RepositoryResource::class;
-    protected static ?string $navigationIcon = 'heroicon-m-cog-6-tooth';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-m-cog-6-tooth';
     protected static ?string $navigationLabel = 'Settings';
+
+    public static function route(string $path): PageRegistration
+    {
+        return new PageRegistration(
+            page: static::class,
+            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
+                ->middleware(static::getRouteMiddleware($panel))
+                ->withoutMiddleware(static::getWithoutRouteMiddleware($panel))
+                ->scopeBindings(),
+        );
+    }
 
     public function getBreadcrumbs(): array
     {
@@ -28,9 +44,9 @@ class EditRepositorySettings extends EditRecord
         return $this->record->path;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Section::make('Visibility')
                 ->description(fn(Repository $record) => "This repository is " . ($record->public ? 'public' : 'private') . '.')
                 ->schema([
@@ -49,8 +65,8 @@ class EditRepositorySettings extends EditRecord
             Section::make('Delete repository')->schema([
                 View::make('filament.text')
                     ->viewData(['text' => 'Deleting a repository will destroy all images stored within it! This action is not reversible.']),
-                FormActions::make([
-                    FormActions\Action::make('delete')
+                Actions::make([
+                    Action::make('delete')
                         ->icon('heroicon-m-x-mark')
                         ->color('danger')
                         ->requiresConfirmation()

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Cainy\Dockhand\Enums\MediaType;
 use Cainy\Dockhand\Facades\Dockhand;
 use Cainy\Dockhand\Resources\ImageManifest;
@@ -54,7 +55,7 @@ class Manifest extends Model
                 $childManifest = Dockhand::getManifestFromManifestListEntry($manifestListEntry);
 
                 if ($childManifest->isManifestList()) {
-                    throw new \Exception("Manifest list inside manifest list is not supported");
+                    throw new Exception("Manifest list inside manifest list is not supported");
                 }
 
                 $childManifestModel = Manifest::createFromResource($childManifest);

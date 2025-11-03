@@ -5,22 +5,41 @@ namespace App\Filament\Resources\RepositoryResource\Pages;
 use App\Enums\Roles;
 use App\Filament\Resources\RepositoryResource;
 use App\Models\User;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Panel;
 use Filament\Resources\Pages\ManageRelatedRecords;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Tables;
-use Filament\Tables\Actions\AttachAction;
+use Filament\Resources\Pages\PageRegistration;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route as RouteFacade;
 
 class ManageRepositoryCollaborators extends ManageRelatedRecords
 {
     protected static string $resource = RepositoryResource::class;
 
     protected static string $relationship = 'users';
-    protected static ?string $navigationIcon = 'heroicon-s-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-users';
     protected static ?string $navigationLabel = 'Collaborators';
+
+    public static function route(string $path): PageRegistration
+    {
+        return new PageRegistration(
+            page: static::class,
+            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
+                ->middleware(static::getRouteMiddleware($panel))
+                ->withoutMiddleware(static::getWithoutRouteMiddleware($panel))
+                ->scopeBindings(),
+        );
+    }
 
     public function getBreadcrumbs(): array
     {
@@ -43,21 +62,21 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
             ->recordTitleAttribute('name')
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('name'),
+                TextColumn::make('role')
                     ->label('Role')
                     ->formatStateUsing(fn(string $state): string => Roles::array()[$state])
                     ->badge(),
-                Tables\Columns\IconColumn::make('accepted')
+                IconColumn::make('accepted')
                     ->default('true')
                     ->boolean()
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->color('primary')
                     ->label('Invite Collaborator')
                     ->icon('heroicon-s-user-plus')
-                    ->modalWidth(MaxWidth::Medium)
+                    ->modalWidth(Width::Medium)
                     ->modalHeading('Invite Collaborator')
                     ->modalDescription('Select a user to invite to this repository.')
                     ->modalSubmitActionLabel('Invite')
@@ -68,34 +87,34 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
                             ->label('User')
                             ->placeholder('Search a user')
                             ->required(),
-                        Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->label('Role')
                             ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
                     ])
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->hidden(fn(User $record) => $record->id === auth()->id())
                     ->modalHeading(fn(User $record) => "Edit {$record->name}'s role")
-                    ->form(fn(Tables\Actions\EditAction $action): array => [
-                        Forms\Components\Select::make('role')
+                    ->schema(fn(EditAction $action): array => [
+                        Select::make('role')
                             ->hiddenLabel()
                             ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
-                    ])->modalWidth(MaxWidth::Medium),
-                Tables\Actions\DetachAction::make()
+                    ])->modalWidth(Width::Medium),
+                DetachAction::make()
                     ->label('Revoke')
                     ->modalHeading(fn(User $record) => "Revoke {$record->name}'s role")
                     ->hidden(fn(User $record) => $record->id === auth()->id()),
             ]);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
             ]);

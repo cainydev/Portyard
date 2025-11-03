@@ -1,4 +1,4 @@
-<img src="resources/images/portyard_v2.png" alt="portyard" width="120">
+<img align="center" src="resources/images/portyard.png" alt="portyard" width="120">
 
 # Portyard Registry
 
