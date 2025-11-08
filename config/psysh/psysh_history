@@ -1,5 +1,0 @@
-_HiStOrY_V2_
-new\040App\134Models\134Tag;
-new\040App\134Models\134ImageConfig;
-new\040App\134Models\134ImageConfig()::$traitInitializers;
-tap(new\040App\134Models\134ImageConfig(),\040fn\040($instance)\040=>\040$instance::$traitInitializers);
