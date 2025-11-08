@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TokenController;
 use App\Http\Middleware\AuthenticateAccount;
+use App\Models\Tag;
 use App\Models\User;
 use Cainy\Dockhand\Facades\Dockhand;
 use Cainy\Dockhand\Facades\Scope;
@@ -9,8 +10,12 @@ use Cainy\Dockhand\Facades\Token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return view('home');
+})->name('web.home');
+
 Route::get('/test-tag', function () {
-    return \App\Models\Tag::all();
+    return Tag::all();
 });
 
 Route::get('/auth/token', [TokenController::class, 'entry'])

@@ -18,5 +18,8 @@
         "postcss-nesting": "^12.1.5",
         "tailwindcss": "^4.1.16",
         "vite": "^7.1.12"
+    },
+    "dependencies": {
+        "@tailwindplus/elements": "^1.0.18"
     }
 }
