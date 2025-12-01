@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="resources/images/portyard_v2.png" alt="portyard" width="120">
+    <img src="resources/images/portyard.png" alt="portyard" width="120">
 </div>
 
 # Portyard Registry
