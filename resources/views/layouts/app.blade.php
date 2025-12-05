@@ -65,8 +65,10 @@
                     </flux:navbar>
                 @endif
 
-                <flux:dropdown position="top" align="start">
-                    <flux:profile avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
+                <flux:dropdown position="top" align="end">
+                    <flux:profile icon:trailing="" icon="arrow-down-tray"
+                                  avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
+
                     <flux:menu>
                         <flux:menu.radio.group>
                             <flux:menu.item :href="route('app.settings.profile')" icon="cog" wire:navigate.hover>
@@ -79,6 +81,7 @@
                             <flux:menu.item type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
                         </form>
                     </flux:menu>
+
                 </flux:dropdown>
             @endauth
 

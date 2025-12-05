@@ -2,12 +2,11 @@
 
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     //
 };
 ?>
 
-<div>
-    {{-- The whole future lies in uncertainty: live immediately. - Seneca --}}
+<div class="flex flex-col grow">
+    <x-container></x-container>
 </div>
