@@ -10,14 +10,18 @@ use Cainy\Dockhand\Facades\Token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+/** Flexible Home */
+Route::get('/', function () {
+    return app()->call([
+        app('livewire')->new(Auth::check() ? 'pages::app.dashboard' : 'pages::website.home'),
+        '__invoke',
+    ]);
+})->name('root');
+
 /** App */
 Route::middleware('auth')
     ->name('app.')
     ->group(function () {
-        /** Dashboard */
-        Route::livewire('/', 'pages::app.dashboard')
-            ->name('dashboard');
-
         /** Repositories */
         Route::prefix('repositories')
             ->name('repositories.')
@@ -62,7 +66,7 @@ Route::middleware('auth')
                 Route::livewire('appearance', 'pages::app.settings.appearance')
                     ->name('appearance');
 
-                Route::livewire('two-factor', 'app.settings.two-factor')
+                Route::livewire('two-factor', 'pages::app.settings.two-factor')
                     ->middleware(['password.confirm'])
                     ->name('two-factor');
             });

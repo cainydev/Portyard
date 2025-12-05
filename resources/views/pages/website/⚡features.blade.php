@@ -3,13 +3,13 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::website')] class extends Component {
+new #[Layout('layouts::app')] class extends Component {
     //
 };
 ?>
 
-<div>
-    <div>
+<div class="flex flex-col grow">
+    <x-container>
         <flux:badge icon="identification">Sovereign Infrastructure</flux:badge>
 
         <div class="mt-10 lg:mt-12">
@@ -85,11 +85,9 @@ new #[Layout('layouts::website')] class extends Component {
                 </div>
             </flux:card>
         </div>
-    </div>
+    </x-container>
 
-    <x-website.divider/>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
+    <x-container class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
         <div>
             <flux:heading level="2"
                           class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
@@ -156,11 +154,9 @@ new #[Layout('layouts::website')] class extends Component {
         </div>
 
 
-    </div>
+    </x-container>
 
-    <x-website.divider/>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
+    <x-container class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
         <div>
             <flux:heading level="2"
                           class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
@@ -191,5 +187,5 @@ new #[Layout('layouts::website')] class extends Component {
                 <flux:heading level="3" size="base">Coolify / Forge</flux:heading>
             </flux:card>
         </div>
-    </div>
+    </x-container>
 </div>

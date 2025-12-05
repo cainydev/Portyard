@@ -3,13 +3,13 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::website')] class extends Component {
+new #[Layout('layouts::app')] class extends Component {
     //
 };
 ?>
 
-<div>
-    <div class="max-w-4xl">
+<div class="flex flex-col grow">
+    <x-container>
         <flux:badge icon="pencil">Work in progress</flux:badge>
 
         <div class="mt-10 lg:mt-12">
@@ -36,5 +36,5 @@ new #[Layout('layouts::website')] class extends Component {
                 Dockhand on Github
             </flux:button>
         </div>
-    </div>
+    </x-container>
 </div>

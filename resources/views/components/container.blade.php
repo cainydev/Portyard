@@ -17,7 +17,7 @@
             @endisset
         </div>
 
-        <div {{ $attributes->class(["col-start-1 sm:col-start-2 @min-7xl:border-x border-stitched"]) }}>
+        <div {{ $attributes->class(["col-start-1 sm:col-start-2 @min-7xl:border-x border-stitched [:where(&)]:p-6 lg:[:where(&)]:p-8"]) }}>
             {{ $slot }}
         </div>
 

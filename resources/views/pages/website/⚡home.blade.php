@@ -3,13 +3,13 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::website')] class extends Component {
+new #[Layout('layouts::app')] class extends Component {
     //
 };
 ?>
 
-<div>
-    <div>
+<div class="flex flex-col grow">
+    <x-container>
         <flux:badge icon="server">Hosted in Frankfurt, Germany</flux:badge>
 
         <div class="mt-10 lg:mt-12">
@@ -25,7 +25,7 @@ new #[Layout('layouts::website')] class extends Component {
             </flux:subheading>
 
             <div class="mt-10 lg:mt-12 flex items-center gap-6">
-                <flux:button href="#" variant="primary">
+                <flux:button href="{{ route('register') }}" variant="primary">
                     Start deploying
                 </flux:button>
 
@@ -34,11 +34,9 @@ new #[Layout('layouts::website')] class extends Component {
                 </flux:button>
             </div>
         </div>
-    </div>
+    </x-container>
 
-    <x-website.divider/>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+    <x-container class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
         <div>
             <flux:heading level="2"
                           class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
@@ -102,11 +100,9 @@ new #[Layout('layouts::website')] class extends Component {
                 </div>
             </div>
         </div>
-    </div>
+    </x-container>
 
-    <x-website.divider/>
-
-    <div>
+    <x-container>
         <flux:heading level="2"
                       class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
             Why companies are switching
@@ -141,5 +137,5 @@ new #[Layout('layouts::website')] class extends Component {
                 </flux:text>
             </flux:card>
         </div>
-    </div>
+    </x-container>
 </div>

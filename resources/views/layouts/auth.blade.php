@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
+    <title>{{ $title ?? config('app.name') }}</title>
     @include('partials.head')
 </head>
 <body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:main
-        class="grid min-h-screen p-0! w-full grid-cols-1 sm:grid-cols-[1fr_1rem_min(var(--container-lg),100dvw)_1rem_1fr] grid-rows-[1fr_auto_1fr]">
+    <flux:main :x-data="$alpine ?? '{}'"
+               class="grid min-h-screen p-0! w-full grid-cols-1 sm:grid-cols-[1fr_1rem_min(var(--container-lg),100dvw)_1rem_1fr] grid-rows-[1fr_auto_1fr]">
 
         <div
             class="pointer-events-none hidden sm:block col-start-2 bg-diag-lines row-span-full border-x border-dashed border-zinc-300 dark:border-zinc-600"></div>
@@ -31,7 +32,6 @@
                 {{ $footer }}
             </div>
         @endisset
-
     </flux:main>
 
     @fluxScripts

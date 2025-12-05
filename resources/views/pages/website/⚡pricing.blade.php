@@ -3,13 +3,12 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::website')] class extends Component {
-    // No server-side logic needed for the calculator anymore
+new #[Layout('layouts::app')] class extends Component {
 };
 ?>
 
-<div>
-    <div class="max-w-4xl">
+<div class="flex flex-col grow">
+    <x-container>
         <flux:badge icon="banknotes">Transparent Pricing</flux:badge>
 
         <div class="mt-10 lg:mt-12">
@@ -23,15 +22,15 @@ new #[Layout('layouts::website')] class extends Component {
                 linearly with your storage needs and security activity.
             </flux:subheading>
         </div>
-    </div>
+    </x-container>
 
-    <div x-data="{
+    <x-container x-data="{
             storage: 100,
             scans: 20,
             get storageCost() { return (this.storage * 0.02).toFixed(2) },
             get scanCost() { return (Math.max(0, this.scans) * 0.05).toFixed(2) },
             get total() { return (parseFloat(this.storageCost) + parseFloat(this.scanCost)).toFixed(2) }
-        }" class="mt-10 lg:mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        }" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
         <div class="lg:col-span-7 flex flex-col gap-10">
             <flux:card class="space-y-6">
@@ -119,11 +118,9 @@ new #[Layout('layouts::website')] class extends Component {
                 </div>
             </flux:card>
         </div>
-    </div>
+    </x-container>
 
-    <x-website.divider/>
-
-    <div>
+    <x-container>
         <flux:heading level="2"
                       class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
             Everything included
@@ -163,5 +160,5 @@ new #[Layout('layouts::website')] class extends Component {
                 </flux:text>
             </flux:card>
         </div>
-    </div>
+    </x-container>
 </div>
