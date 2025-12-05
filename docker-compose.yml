@@ -59,7 +59,6 @@ services:
             - "traefik.http.routers.laravel.priority=10"
             - "traefik.http.services.laravel-web.loadbalancer.server.port=80"
 
-
     # ---------- MariaDB database ----------
     mariadb:
         container_name: portyard-mariadb
@@ -106,18 +105,43 @@ services:
         ports:
             - "5000:5000"
             - "5001:5001"
-            #environment:
-            #REGISTRY_STORAGE_S3_ACCESSKEY: '${HETZNER_S3_ACCESS_KEY}'
-            #REGISTRY_STORAGE_S3_SECRETKEY: '${HETZNER_S3_SECRET_KEY}'
-            #REGISTRY_STORAGE_S3_REGIONENDPOINT: '${HETZNER_S3_ENDPOINT}'
-            #REGISTRY_STORAGE_S3_REGION: '${HETZNER_S3_REGION}'
-            #REGISTRY_STORAGE_S3_BUCKET: '${HETZNER_S3_BUCKET}'
+        environment:
+            # Enable Token Auth
+            REGISTRY_AUTH: token
+
+            # Who issued the token? (Matches DOCKHAND_AUTHORITY_NAME)
+            REGISTRY_AUTH_TOKEN_ISSUER: '${DOCKHAND_AUTHORITY_NAME}'
+
+            # What service is this? (Matches DOCKHAND_REGISTRY_NAME)
+            REGISTRY_AUTH_TOKEN_SERVICE: '${DOCKHAND_REGISTRY_NAME}'
+
+            # Where do users login?
+            REGISTRY_AUTH_TOKEN_REALM: 'https://${APP_DOMAIN:-portyard.local}/auth/token'
+
+            # Internal Certificate Path (Where we mount it inside the container)
+            REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/auth.pem
+
+            # Notifications Endpoint URL
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_URL: 'https://${APP_DOMAIN:-portyard.local}${DOCKHAND_NOTIFICATIONS_ROUTE}'
+
+            # Notifications Authorization Header
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_HEADERS_Authorization: 'Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}'
+
+            # Notifications Config
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_TIMEOUT: 500ms
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_THRESHOLD: 5
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_BACKOFF: 1s
+
+            # Reuse APP_KEY for the registry's internal cookie secret
+            REGISTRY_HTTP_SECRET: '${APP_KEY}'
+
         networks:
             - sail
         volumes:
             - portyard-registry:/var/lib/registry
             - ./registry.yml:/etc/docker/registry/config.yml
-            - ./certs/public/:/root/certs/
+            # Mount the Public Key
+            - ./certs/public/ca.pem:/etc/docker/registry/auth.pem:ro
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.registry.rule=Host(`${APP_DOMAIN:-portyard.local}`) && PathPrefix(`/v2/`)"
