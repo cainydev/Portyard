@@ -18,8 +18,11 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 class ManageRepositoryTags extends ManageRelatedRecords
 {
     protected static string $resource = RepositoryResource::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-tag';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-s-tag';
+
     protected static ?string $navigationLabel = 'Tags';
+
     protected static string $relationship = 'tags';
 
     public static function route(string $path): PageRegistration
@@ -62,7 +65,7 @@ class ManageRepositoryTags extends ManageRelatedRecords
                         ->weight(FontWeight::Bold),
                     TextColumn::make('name')
                         ->weight(FontWeight::Bold),
-                ])
+                ]),
             ])
             ->filters([
                 //

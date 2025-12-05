@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources\RepositoryResource\RelationManagers;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Tables\Table;
 
 class WebhooksRelationManager extends RelationManager
@@ -19,9 +18,9 @@ class WebhooksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->header(fn(Table $table) => view('filament.repository-collaborators-header', [
+            ->header(fn (Table $table) => view('filament.repository-collaborators-header', [
                 'actions' => $table->getHeaderActions(),
-                'repository' => $this->ownerRecord
+                'repository' => $this->ownerRecord,
             ]))
             ->recordTitleAttribute('name')
             ->paginated(false)
@@ -33,7 +32,7 @@ class WebhooksRelationManager extends RelationManager
                     ->label('Callback URL')
                     ->required()
                     ->url()
-                    ->columnSpan(1)
+                    ->columnSpan(1),
             ])
             ->filters([
                 //

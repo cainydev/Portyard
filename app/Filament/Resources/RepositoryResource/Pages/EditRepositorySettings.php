@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 class EditRepositorySettings extends EditRecord
 {
     protected static string $resource = RepositoryResource::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-m-cog-6-tooth';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-cog-6-tooth';
+
     protected static ?string $navigationLabel = 'Settings';
 
     public static function route(string $path): PageRegistration
@@ -48,7 +50,7 @@ class EditRepositorySettings extends EditRecord
     {
         return $schema->components([
             Section::make('Visibility')
-                ->description(fn(Repository $record) => "This repository is " . ($record->public ? 'public' : 'private') . '.')
+                ->description(fn (Repository $record) => 'This repository is '.($record->public ? 'public' : 'private').'.')
                 ->schema([
                     View::make('filament.text')
                         ->viewData(['text' => 'Public repositories are available to anyone. Private repositories are only available to you.']),
@@ -60,7 +62,7 @@ class EditRepositorySettings extends EditRecord
                         ->afterStateUpdated(function (Repository $record, bool $state) {
                             $record->public = $state;
                             $record->save();
-                        })
+                        }),
                 ]),
             Section::make('Delete repository')->schema([
                 View::make('filament.text')
@@ -73,9 +75,9 @@ class EditRepositorySettings extends EditRecord
                         ->action(function (Repository $record) {
                             $record->delete();
                             $this->redirect(ListRepositories::getUrl(), navigate: true);
-                        })
-                ])
-            ])
+                        }),
+                ]),
+            ]),
         ]);
     }
 

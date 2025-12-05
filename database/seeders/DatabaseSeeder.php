@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'John',
             'email' => 'wajo432@gmail.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         User::factory()->count(10)->create();

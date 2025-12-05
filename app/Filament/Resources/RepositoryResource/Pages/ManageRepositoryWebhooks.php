@@ -25,8 +25,11 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 class ManageRepositoryWebhooks extends ManageRelatedRecords
 {
     protected static string $resource = RepositoryResource::class;
+
     protected static ?string $navigationLabel = 'Webhooks';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-cloud-arrow-up';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-s-cloud-arrow-up';
+
     protected static string $relationship = 'webhooks';
 
     public static function route(string $path): PageRegistration
@@ -73,9 +76,9 @@ class ManageRepositoryWebhooks extends ManageRelatedRecords
     public function table(Table $table): Table
     {
         return $table
-            ->header(fn(Table $table) => view('filament.repository-webhooks-header', [
+            ->header(fn (Table $table) => view('filament.repository-webhooks-header', [
                 'actions' => $table->getHeaderActions(),
-                'repository' => $this->record
+                'repository' => $this->record,
             ]))
             ->defaultSort('created_at', 'desc')
             ->recordTitleAttribute('name')

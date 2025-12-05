@@ -20,11 +20,17 @@ use Illuminate\Database\Eloquent\Model;
 class RepositoryResource extends Resource
 {
     protected static ?string $model = Repository::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
     protected static ?string $pluralModelLabel = 'Repositories';
+
     protected static ?string $modelLabel = 'Repository';
+
     protected static ?string $recordRouteKeyName = 'name';
+
     protected static ?string $recordTitleAttribute = 'path';
 
     public static function getSlug(?Panel $panel = null): string
@@ -37,7 +43,7 @@ class RepositoryResource extends Resource
         if (isset($parameters['record']) && $parameters['record'] instanceof Repository) {
             $repository = $parameters['record'];
 
-            if (!isset($parameters['user'])) {
+            if (! isset($parameters['user'])) {
                 $parameters['user'] = $repository->owners()->first();
             }
         }

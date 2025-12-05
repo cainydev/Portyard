@@ -15,7 +15,7 @@ class Tag extends Model
     protected $casts = [
         'last_pushed' => 'datetime',
     ];
-    
+
     protected static function booted(): void
     {
         static::creating(function (Tag $model) {

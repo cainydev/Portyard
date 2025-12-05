@@ -11,6 +11,7 @@ class Collaborator extends Pivot
     use HasUuids;
 
     public $incrementing = false;
+
     protected $table = 'repository_user';
 
     protected $fillable = [

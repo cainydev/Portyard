@@ -20,6 +20,7 @@ class NamingService
         if (in_array($username, self::$reservedUsernames, true)) {
             return false;
         }
+
         return (bool) preg_match(self::usernameRegex(), $username);
     }
 
@@ -40,13 +41,14 @@ class NamingService
         if (strlen($repoName) < 1 || strlen($repoName) > 100) {
             return false;
         }
-        if (!preg_match(self::repositoryNameRegex(), $repoName)) {
+        if (! preg_match(self::repositoryNameRegex(), $repoName)) {
             return false;
         }
         // No consecutive dots, hyphens, or dot-hyphen/hyphen-dot/underscore combos
         if (preg_match('/(\.\.|--|\.-|-\.|__)/', $repoName)) {
             return false;
         }
+
         return true;
     }
 

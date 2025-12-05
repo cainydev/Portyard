@@ -19,7 +19,7 @@ class ManifestPushedListener
      */
     public function handle(ManifestPushedEvent $event): void
     {
-        Log::info("ManifestPushedListener: handle() ", [
+        Log::info('ManifestPushedListener: handle() ', [
             'repository' => $event->targetRepository,
             'tag' => $event->targetTag,
             'digest' => $event->targetDigest,
@@ -33,18 +33,19 @@ class ManifestPushedListener
         $manifest = Dockhand::getManifest($event->targetRepository, $event->targetDigest);
 
         if ($manifest === null) {
-            Log::error("ManifestPushedHandler: Manifest not found", [
+            Log::error('ManifestPushedHandler: Manifest not found', [
                 'repository' => $event->targetRepository,
                 'digest' => $event->targetDigest,
             ]);
+
             return;
         }
 
         $user = User::where('email', $event->actorName)->firstOrFail();
-        Log::info("ManifestPushedListener: User found", $user->toArray());
+        Log::info('ManifestPushedListener: User found', $user->toArray());
 
         $repo = Repository::where('path', $event->targetRepository)->firstOrFail();
-        Log::info("ManifestPushedListener: Repo found", $repo->toArray());
+        Log::info('ManifestPushedListener: Repo found', $repo->toArray());
 
         DB::transaction(function () use ($event, $user, $repo, $manifest) {
             $manifestModel = Manifest::createFromResource($manifest);
@@ -58,20 +59,20 @@ class ManifestPushedListener
                 $tag->update([
                     'user_id' => $user->id,
                     'manifest_id' => $manifestModel->id,
-                    'last_pushed' => now()
+                    'last_pushed' => now(),
                 ]);
 
-                Log::info("ManifestPushedListener: Tag updated", $tag->toArray());
+                Log::info('ManifestPushedListener: Tag updated', $tag->toArray());
             } else {
                 Tag::create([
                     'repository_id' => $repo->id,
                     'name' => $event->targetTag,
                     'user_id' => $user->id,
                     'manifest_id' => $manifestModel->id,
-                    'last_pushed' => now()
+                    'last_pushed' => now(),
                 ]);
 
-                Log::info("ManifestPushedListener: Tag created", $tag->toArray());
+                Log::info('ManifestPushedListener: Tag created', $tag->toArray());
             }
         });
     }

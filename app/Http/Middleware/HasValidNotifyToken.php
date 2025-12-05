@@ -14,20 +14,18 @@ class HasValidNotifyToken
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response) $next
-     * @return Response
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         Log::info('Notify: Trying to verify token...');
 
-        if (!$request->bearerToken()) {
+        if (! $request->bearerToken()) {
             Log::error('Notify: Missing token.');
             abort(401);
         }
 
-        if (!TokenService::validateToken($request->bearerToken(), function ($validator, $token) {
+        if (! TokenService::validateToken($request->bearerToken(), function ($validator, $token) {
             $validator->assert($token, new HasClaimWithValue('access', 'notify'));
         })) {
             Log::error('Notify: Faulty token.');
@@ -35,6 +33,7 @@ class HasValidNotifyToken
         }
 
         Log::info('Notify: Token verified!');
+
         return $next($request);
     }
 }

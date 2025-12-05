@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Exception;
 use Cainy\Dockhand\Enums\MediaType;
 use Cainy\Dockhand\Facades\Dockhand;
 use Cainy\Dockhand\Resources\ImageManifest;
 use Cainy\Dockhand\Resources\ManifestList;
 use Cainy\Dockhand\Resources\ManifestResource;
+use Exception;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,8 +34,6 @@ class Manifest extends Model
     /**
      * Create a new manifest from a resource.
      *
-     * @param ManifestResource $resource
-     * @return Manifest
      * @throws Throwable
      */
     public static function createFromResource(ManifestResource $resource): Manifest
@@ -55,7 +53,7 @@ class Manifest extends Model
                 $childManifest = Dockhand::getManifestFromManifestListEntry($manifestListEntry);
 
                 if ($childManifest->isManifestList()) {
-                    throw new Exception("Manifest list inside manifest list is not supported");
+                    throw new Exception('Manifest list inside manifest list is not supported');
                 }
 
                 $childManifestModel = Manifest::createFromResource($childManifest);
@@ -67,7 +65,7 @@ class Manifest extends Model
                     'platform_variant' => $manifestListEntry->platform->variant,
                 ]);
             }
-        } else if ($resource instanceof ImageManifest) {
+        } elseif ($resource instanceof ImageManifest) {
             $config = Dockhand::getImageConfigFromDescriptor($resource->config);
 
             $manifest->imageConfig()->create([
@@ -83,7 +81,7 @@ class Manifest extends Model
                     'digest' => $layer->digest,
                     'sort_order' => $order++,
                     'size_bytes' => $layer->size,
-                    'media_type' => $layer->mediaType->toString()
+                    'media_type' => $layer->mediaType->toString(),
                 ]);
             }
         }
@@ -95,8 +93,6 @@ class Manifest extends Model
 
     /**
      * Returns true if this manifest is an Image Manifest List (multiple).
-     *
-     * @return bool
      */
     public function isManifestList(): bool
     {
@@ -145,8 +141,6 @@ class Manifest extends Model
 
     /**
      * Returns true if this manifest is an Image Manifest (single).
-     *
-     * @return bool
      */
     public function isImageManifest(): bool
     {

@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources\RepositoryResource\RelationManagers;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
@@ -36,7 +35,7 @@ class TagsRelationManager extends RelationManager
                         ->sortable(),
                 ]),
                 View::make('filament.tags-table-digest-list')
-                    ->collapsible()
+                    ->collapsible(),
             ])
             ->filters([
                 //

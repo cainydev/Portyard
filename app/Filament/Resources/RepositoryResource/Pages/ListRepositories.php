@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\RepositoryResource\Pages;
 
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\CreateAction;
 use App\Filament\Resources\RepositoryResource;
-use Filament\Actions;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
@@ -29,9 +28,9 @@ class ListRepositories extends ListRecords
                     ->width(300),
                 TextColumn::make('public')
                     ->label('Visibility')
-                    ->icon(fn($state) => $state ? 'heroicon-o-globe-alt' : 'heroicon-o-lock-closed')
-                    ->iconColor(fn($state) => $state ? 'success' : 'info')
-                    ->formatStateUsing(fn($state) => $state ? 'Public' : 'Private')
+                    ->icon(fn ($state) => $state ? 'heroicon-o-globe-alt' : 'heroicon-o-lock-closed')
+                    ->iconColor(fn ($state) => $state ? 'success' : 'info')
+                    ->formatStateUsing(fn ($state) => $state ? 'Public' : 'Private'),
             ])
             ->recordActions([
                 EditAction::make(),

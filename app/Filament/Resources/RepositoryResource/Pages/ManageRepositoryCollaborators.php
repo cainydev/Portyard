@@ -27,7 +27,9 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
     protected static string $resource = RepositoryResource::class;
 
     protected static string $relationship = 'users';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-users';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-s-users';
+
     protected static ?string $navigationLabel = 'Collaborators';
 
     public static function route(string $path): PageRegistration
@@ -54,9 +56,9 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
     public function table(Table $table): Table
     {
         return $table
-            ->header(fn(Table $table) => view('filament.repository-collaborators-header', [
+            ->header(fn (Table $table) => view('filament.repository-collaborators-header', [
                 'actions' => $table->getHeaderActions(),
-                'repository' => $this->record
+                'repository' => $this->record,
             ]))
             ->defaultSort('role')
             ->recordTitleAttribute('name')
@@ -65,11 +67,11 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
                 TextColumn::make('name'),
                 TextColumn::make('role')
                     ->label('Role')
-                    ->formatStateUsing(fn(string $state): string => Roles::array()[$state])
+                    ->formatStateUsing(fn (string $state): string => Roles::array()[$state])
                     ->badge(),
                 IconColumn::make('accepted')
                     ->default('true')
-                    ->boolean()
+                    ->boolean(),
             ])
             ->headerActions([
                 AttachAction::make()
@@ -82,31 +84,31 @@ class ManageRepositoryCollaborators extends ManageRelatedRecords
                     ->modalSubmitActionLabel('Invite')
                     ->successNotificationTitle('Invitation sent. You can check the status of the invitation in the Collaborators tab.')
                     ->attachAnother(false)
-                    ->form(fn(AttachAction $action): array => [
+                    ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect()
                             ->label('User')
                             ->placeholder('Search a user')
                             ->required(),
                         Select::make('role')
                             ->label('Role')
-                            ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
+                            ->options(collect(Roles::array())->filter(fn ($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
-                    ])
+                    ]),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->hidden(fn(User $record) => $record->id === auth()->id())
-                    ->modalHeading(fn(User $record) => "Edit {$record->name}'s role")
-                    ->schema(fn(EditAction $action): array => [
+                    ->hidden(fn (User $record) => $record->id === auth()->id())
+                    ->modalHeading(fn (User $record) => "Edit {$record->name}'s role")
+                    ->schema(fn (EditAction $action): array => [
                         Select::make('role')
                             ->hiddenLabel()
-                            ->options(collect(Roles::array())->filter(fn($_, $key) => $key !== Roles::Owner->value))
+                            ->options(collect(Roles::array())->filter(fn ($_, $key) => $key !== Roles::Owner->value))
                             ->required(),
                     ])->modalWidth(Width::Medium),
                 DetachAction::make()
                     ->label('Revoke')
-                    ->modalHeading(fn(User $record) => "Revoke {$record->name}'s role")
-                    ->hidden(fn(User $record) => $record->id === auth()->id()),
+                    ->modalHeading(fn (User $record) => "Revoke {$record->name}'s role")
+                    ->hidden(fn (User $record) => $record->id === auth()->id()),
             ]);
     }
 

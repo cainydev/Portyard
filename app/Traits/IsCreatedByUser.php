@@ -12,7 +12,9 @@ trait IsCreatedByUser
         static::creating(/**
          * @throws Exception
          */ function (Model $model) {
-            if (!auth()->check()) throw new Exception('Can\'t create ' . $model::class . ' when logged out.');
+            if (! auth()->check()) {
+                throw new Exception('Can\'t create '.$model::class.' when logged out.');
+            }
 
             $model->user_id = auth()->user()->id;
         });

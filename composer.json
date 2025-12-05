@@ -6,24 +6,31 @@
         "laravel",
         "framework"
     ],
-    "repositories": [
-        {
+    "repositories": {
+        "flux-pro": {
+            "type": "composer",
+            "url": "https://composer.fluxui.dev"
+        },
+        "0": {
             "type": "git",
             "url": "https://github.com/cainydev/laravel-dockhand"
         }
-    ],
+    },
     "license": "MIT",
     "require": {
         "php": "^8.4",
         "ext-openssl": "*",
         "cainy/laravel-dockhand": "@dev",
         "christian-riesen/base32": "^1.6",
-        "filament/filament": "^4.0",
+        "laravel/fortify": "^1.32",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "lcobucci/clock": "^3.2",
         "lcobucci/jwt": "^5.3",
+        "livewire/flux": "^2.9",
+        "livewire/flux-pro": "^2.9",
+        "livewire/livewire": "^4.0@beta",
         "phpseclib/phpseclib": "^3.0",
         "ramsey/uuid": "^4.7"
     },
@@ -31,7 +38,7 @@
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^4.0",
         "laravel/boost": "^1.1",
-        "laravel/pint": "^1.13",
+        "laravel/pint": "^1.26",
         "laravel/sail": "^1.29",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
@@ -69,8 +76,7 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi",
-            "@php artisan filament:upgrade"
+            "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
