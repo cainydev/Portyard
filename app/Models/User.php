@@ -56,7 +56,7 @@ class User extends Authenticatable
 
     public function namespace(): Attribute
     {
-        return new Attribute(get: fn () => str($this->name)->slug());
+        return new Attribute(get: fn () => str($this->name)->slug()->lower());
     }
 
     public function repositories(): BelongsToMany

@@ -8,8 +8,9 @@ class NamingService
      * List of reserved usernames for routes and special pages.
      */
     protected static array $reservedUsernames = [
-        'settings', 'explore', 'notifications', 'login', 'logout', 'signup',
+        'home', 'settings', 'explore', 'notifications', 'auth', 'login', 'logout', 'signup',
         'new', 'repositories', 'dashboard', 'admin', 'api', 'about', 'contact',
+        'support', 'help', 'status', 'apps', 'teams', 'orgs', 'pricing', 'legal',
     ];
 
     /**
@@ -17,11 +18,19 @@ class NamingService
      */
     public static function isValidUsername(string $username): bool
     {
-        if (in_array($username, self::$reservedUsernames, true)) {
+        if (self::isReservedUsername($username)) {
             return false;
         }
 
         return (bool) preg_match(self::usernameRegex(), $username);
+    }
+
+    /**
+     * Returns true if the given username is reserved.
+     */
+    public static function isReservedUsername(string $username): bool
+    {
+        return in_array($username, self::$reservedUsernames, true);
     }
 
     /**
@@ -77,14 +86,6 @@ class NamingService
     {
         // username + slash + repo
         return '/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}\/[a-z\d](?:[a-z\d._-]{0,98}[a-z\d])?$/';
-    }
-
-    /**
-     * Returns true if the given username is reserved.
-     */
-    public static function isReservedUsername(string $username): bool
-    {
-        return in_array($username, self::$reservedUsernames, true);
     }
 
     /**

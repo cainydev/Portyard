@@ -140,8 +140,7 @@ services:
         volumes:
             - portyard-registry:/var/lib/registry
             - ./registry.yml:/etc/docker/registry/config.yml
-            # Mount the Public Key
-            - ./certs/public/ca.pem:/etc/docker/registry/auth.pem:ro
+            - ./certs/public/cert.pem:/etc/docker/registry/auth.pem:ro
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.registry.rule=Host(`${APP_DOMAIN:-portyard.local}`) && PathPrefix(`/v2/`)"

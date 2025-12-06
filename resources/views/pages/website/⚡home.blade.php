@@ -70,36 +70,7 @@ new #[Layout('layouts::app')] class extends Component {
             </div>
         </div>
 
-        <div
-            class="rounded-xl overflow-hidden">
-            <div class="flex items-center gap-2 px-4 py-3 bg-neutral-700/50 border-b border-neutral-800">
-                <div class="size-3 rounded-full bg-red-500"></div>
-                <div class="size-3 rounded-full bg-yellow-500"></div>
-                <div class="size-3 rounded-full bg-green-500"></div>
-            </div>
-            <div class="p-6 text-gray-300 bg-neutral-900/50 font-mono">
-                <div class="flex">
-                    <span class="text-yellow-400 mr-2 font-semibold">λ ~</span>
-                    <span>docker login portyard.de</span>
-                </div>
-                <div class="text-gray-500 mb-4">Login Succeeded</div>
-
-                <div class="flex">
-                    <span class="text-yellow-400 mr-2 font-semibold">λ ~</span>
-                    <span>docker tag my-app portyard.de/team/app:v1</span>
-                </div>
-
-                <div class="flex mt-4">
-                    <span class="text-yellow-400 mr-2 font-semibold">λ ~</span>
-                    <span>docker push portyard.de/team/app:v1</span>
-                </div>
-                <div class="text-gray-500">
-                    The push refers to repository [portyard.de/team/app]<br>
-                    8e674ad98d9c: Pushed <span class="text-gray-600">[212MB @ 80MB/s]</span><br>
-                    v1: digest: sha256:8b9... size: 1288
-                </div>
-            </div>
-        </div>
+        
     </x-container>
 
     <x-container>

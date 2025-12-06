@@ -32,7 +32,8 @@ Route::middleware('auth')
                 Route::livewire('new', 'pages::app.repositories.new')
                     ->name('new');
 
-                Route::prefix('{user.namespace}/{repository.name}')
+                Route::prefix('{user:namespace}/{repository:name}')
+                    ->scopeBindings()
                     ->group(function () {
                         Route::livewire('/', 'pages::app.repositories.overview')
                             ->name('overview');

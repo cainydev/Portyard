@@ -180,6 +180,12 @@ new class extends Component {
 
 <div class="flex flex-col grow">
     <x-container>
+        <flux:breadcrumbs>
+            <flux:breadcrumbs.item>Home</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item>Settings</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item>Two-Factor</flux:breadcrumbs.item>
+        </flux:breadcrumbs>
+
         <flux:heading level="1"
                       class="text-2xl! font-semibold tracking-tight text-balance max-w-4xl">
             Two Factor Authentication
