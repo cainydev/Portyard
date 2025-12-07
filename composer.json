@@ -20,6 +20,7 @@
     "require": {
         "php": "^8.5",
         "ext-openssl": "*",
+        "ext-pdo": "*",
         "cainy/laravel-dockhand": "@dev",
         "christian-riesen/base32": "^1.6",
         "laravel/fortify": "^1.32",
