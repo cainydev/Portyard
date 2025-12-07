@@ -47,6 +47,7 @@ return new class extends Migration
                     ]);
 
                     DB::table('space_user')->insert([
+                        'id' => Str::uuid7(),
                         'user_id' => $user->id,
                         'space_id' => $spaceId,
                         'role' => Roles::Owner->value,
