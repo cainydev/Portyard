@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Roles;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,13 +41,20 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected static function boot(): void
+    protected static function booted(): void
     {
         static::saving(function (User $model) {
             $model->slug = str($model->name)->lower()->slug();
         });
 
-        parent::boot();
+        static::created(function (User $model) {
+            $space = Space::create([
+                'name' => $model->name."'s Space",
+                'namespace' => str($model->name)->slug()->lower(),
+            ]);
+
+            $space->users()->attach($model, ['role' => Roles::Owner->value]);
+        });
     }
 
     public function tags(): HasManyThrough
@@ -65,6 +73,12 @@ class User extends Authenticatable
             ->withPivot(['role']);
     }
 
+    public function ownedRepositories(): BelongsToMany
+    {
+        return $this->belongsToMany(Repository::class)
+            ->withPivotValue('role', 'owner');
+    }
+
     public function collaborations(): HasMany
     {
         return $this->hasMany(Collaborator::class);
@@ -80,6 +94,25 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    public function currentSpace(): ?Space
+    {
+        $spaceId = session('current_space_id');
+
+        if (! $spaceId) {
+            return $this->spaces()->first();
+        }
+
+        return $this->spaces()->find($spaceId);
+    }
+
+    public function spaces(): BelongsToMany
+    {
+        return $this->belongsToMany(Space::class, 'space_user')
+            ->using(Member::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
     }
 
     /**

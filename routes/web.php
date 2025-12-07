@@ -22,6 +22,25 @@ Route::get('/', function () {
 Route::middleware('auth')
     ->name('app.')
     ->group(function () {
+        /** Spaces */
+        Route::prefix('spaces')->name('spaces.')->group(function () {
+            Route::post('/switch/{space}', function (Request $request, \App\Models\Space $space) {
+                if ($request->user()->cannot('view', $space)) {
+                    abort(403);
+                }
+
+                session(['current_space_id' => $space->id]);
+
+                return redirect()->back();
+            })->name('switch');
+
+            Route::livewire('/new', 'pages::app.spaces.new')
+                ->name('new');
+
+            Route::livewire('/settings', 'pages::app.spaces.settings')
+                ->name('settings');
+        });
+
         /** Repositories */
         Route::prefix('repositories')
             ->name('repositories.')

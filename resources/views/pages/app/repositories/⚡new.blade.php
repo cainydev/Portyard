@@ -58,7 +58,7 @@ new class extends Component {
     <x-container class="flex flex-col grow p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
-                <flux:breadcrumbs.item>Home</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>Repositories</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>New</flux:breadcrumbs.item>
             </flux:breadcrumbs>
@@ -162,15 +162,15 @@ new class extends Component {
                         <x-terminal-command>
                             <x-slot:comment>2. Tag your local image</x-slot:comment>
                             <x-slot:command>
-                                docker tag my-image:latest <span class="break-all">portyard.de/{{ $namespace }}/<span
+                                docker tag image:latest <span class="break-all">portyard.de/{{ $namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>
 
                         <x-terminal-command>
+                            <x-slot:comment>3. Push the image</x-slot:comment>
                             <x-slot:command>
-                                <span class="text-zinc-500"># 3. Push to Portyard</span>
-                                <br>docker push <span class="break-all">portyard.de/{{ $namespace }}/<span
+                                docker push <span class="break-all">portyard.de/{{ $namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>

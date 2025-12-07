@@ -3,11 +3,17 @@
     'right' => null,
     'section' => true,
     'divide' => true,
+    'sticky' => false,
 ])
 
 @if($section)
     <section
-        @class(["@container grid sm:grid-cols-[minmax(0,1fr)_minmax(0,var(--container-7xl))_minmax(0,1fr)] last-of-type:grow w-full", "border-b border-stitched" => $divide])>
+        @class([
+            "bg-white dark:bg-zinc-800",
+            "@container grid sm:grid-cols-[minmax(0,1fr)_minmax(0,var(--container-7xl))_minmax(0,1fr)] last-of-type:grow w-full",
+            "border-b border-stitched" => $divide,
+            "sticky top-[var(--header-height,0px)] z-40" => $sticky
+        ])>
 
         <div class="hidden sm:block col-start-1 min-w-0 overflow-hidden">
             @isset($left)
@@ -31,7 +37,13 @@
     </section>
 @else
     <div
-        @class(["@container grid sm:grid-cols-[minmax(0,1fr)_minmax(0,var(--container-7xl))_minmax(0,1fr)] last-of-type:grow w-full", "border-b border-stitched" => $divide])>
+        @class([
+            "bg-white dark:bg-zinc-800",
+            "@container grid sm:grid-cols-[minmax(0,1fr)_minmax(0,var(--container-7xl))_minmax(0,1fr)] last-of-type:grow w-full",
+            "border-b border-stitched" => $divide,
+            "sticky top-[var(--header-height,0px)] z-40" => $sticky
+        ])>
+
         <div class="hidden sm:block col-start-1 min-w-0 overflow-hidden">
             @isset($left)
                 <div class="flex flex-col gap-6 p-6 lg:p-8">

@@ -12,14 +12,14 @@ new class extends Component {
     <x-container class="p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
-                <flux:breadcrumbs.item>Home</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>Repositories</flux:breadcrumbs.item>
             </flux:breadcrumbs>
         </div>
 
         <x-app.section-header class="p-6 lg:p-8"
-                              :title="__('Your Repositories')"
-                              :subtitle="__('These are all the repositories you created - either manually or by pushing a tag.')">
+                              :title="__('Space Repositories')"
+                              :subtitle="__('These are all the repositories that were created in this space - either manually or by pushing a tag.')">
             <flux:button :href="route('app.repositories.new')" icon="plus" wire:navigate.hover>
                 New Repository
             </flux:button>
@@ -81,13 +81,13 @@ new class extends Component {
     <x-container class="p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
-                <flux:breadcrumbs.item>Home</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>Collaborations</flux:breadcrumbs.item>
             </flux:breadcrumbs>
         </div>
 
         <x-app.section-header class="p-6 lg:p-8"
-                              :title="__('Other Repositories')"
+                              :title="__('Collaboration Repositories')"
                               :subtitle="__('These are all the repositories you were added to as a collaborator. Read more about roles here.')">
         </x-app.section-header>
 

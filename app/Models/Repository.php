@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\Roles;
 use App\Policies\RepositoryPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -19,12 +21,14 @@ class Repository extends Model
 
     protected $guarded = [];
 
-    protected $with = ['collaborators'];
+    protected $with = ['space'];
 
     public static function booted(): void
     {
         self::created(function (self $repository) {
-            $repository->owners()->attach(auth()->user());
+            if (auth()->check()) {
+                $repository->owners()->attach(auth()->user());
+            }
         });
     }
 
@@ -32,7 +36,13 @@ class Repository extends Model
     {
         return $this->belongsToMany(User::class)
             ->using(Collaborator::class)
-            ->withPivotValue('role', Roles::Owner);
+            ->withPivotValue('role', Roles::Owner)
+            ->withTimestamps();
+    }
+
+    public function space(): BelongsTo
+    {
+        return $this->belongsTo(Space::class);
     }
 
     public function collaborators(): HasMany
@@ -44,28 +54,32 @@ class Repository extends Model
     {
         return $this->belongsToMany(User::class)
             ->using(Collaborator::class)
-            ->withPivot(['role']);
+            ->withPivot(['role'])
+            ->withTimestamps();
     }
 
     public function maintainers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->using(Collaborator::class)
-            ->withPivotValue('role', Roles::Maintainer);
+            ->withPivotValue('role', Roles::Maintainer)
+            ->withTimestamps();
     }
 
     public function developers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->using(Collaborator::class)
-            ->withPivotValue('role', Roles::Developer);
+            ->withPivotValue('role', Roles::Developer)
+            ->withTimestamps();
     }
 
     public function viewers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->using(Collaborator::class)
-            ->withPivotValue('role', Roles::Viewer);
+            ->withPivotValue('role', Roles::Viewer)
+            ->withTimestamps();
     }
 
     public function tags(): HasMany
@@ -76,5 +90,10 @@ class Repository extends Model
     public function webhooks(): HasMany
     {
         return $this->hasMany(Webhook::class);
+    }
+
+    public function path(): Attribute
+    {
+        return Attribute::make(get: fn () => "{$this->space->namespace}/{$this->name}");
     }
 }

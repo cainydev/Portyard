@@ -34,20 +34,22 @@ new class extends Component {
         }
     }
 }" class="flex flex-col grow">
-    <x-container class="p-6 lg:p-8 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <flux:icon.sparkles class="h-7 w-7 fill-current"/>
-            <flux:heading size="xl"><span x-text="greeting">
-                {{ __('Good afternoon') }}</span>, {{ auth()->user()->name }}!
-            </flux:heading>
-        </div>
+    <x-container class="p-6 lg:p-8 flex flex-col gap-6 lg:gap-8">
+        <flux:breadcrumbs>
+            <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item>Dashboard</flux:breadcrumbs.item>
+        </flux:breadcrumbs>
 
-        <div class="flex items-center gap-4">
+        <x-app.section-header :subtitle="__('Overview of your repositories and recent activity.')">
+            <x-slot:title>
+                <span x-text="greeting">{{ __('Good afternoon') }}</span>, {{ auth()->user()->name }}!
+            </x-slot:title>
+
             <flux:link variant="subtle" target="_blank"
                        href="https://github.com/cainydev/Portyard/issues">
                 Give Feedback
             </flux:link>
-        </div>
+        </x-app.section-header>
     </x-container>
 
     <x-container class="p-6 lg:p-8 flex flex-col gap-4">

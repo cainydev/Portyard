@@ -1,2 +1,3 @@
 _HiStOrY_V2_
 User::first()->namespace
+str("Hello\040World")->slug()

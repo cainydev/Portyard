@@ -8,7 +8,15 @@
     @php($isAppRoute = Auth::check() && (Route::is('app.*') || Route::is('root')))
 
     {{-- HEADER --}}
-    <flux:header sticky class="p-0! items-stretch">
+    <flux:header
+        sticky
+        class="p-0! items-stretch bg-white dark:bg-zinc-800 z-50"
+        x-data
+        x-init="$nextTick(() => {
+        const setHeight = () => document.documentElement.style.setProperty('--header-height', $el.offsetHeight + 'px');
+        setHeight();
+        new ResizeObserver(setHeight).observe($el);
+    })">
         <x-container :section="false" class="flex flex-row items-center px-6 lg:px-8">
 
             {{-- Mobile Toggle --}}
@@ -26,26 +34,18 @@
             <flux:navbar class="-mb-px max-lg:hidden">
                 @if($isAppRoute)
                     {{-- App Routes --}}
-                    <flux:navbar.item :href="route('root')"
-                                      wire:navigate.hover
-                                      x-data
-                                      x-on:livewire:navigated.window="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)"
-                                      x-init="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)">
-                        Home
+                    <flux:navbar.item :href="route('root')" wire:navigate.hover>
+                        {{ __('Home') }}
                     </flux:navbar.item>
-                    <flux:navbar.item :href="route('app.repositories.list')" wire:navigate.hover>Repositories
+                    <flux:navbar.item :href="route('app.repositories.list')" wire:navigate.hover>
+                        {{ __('Repositories') }}
                     </flux:navbar.item>
-                    <flux:navbar.item :href="route('app.settings.profile')" wire:navigate.hover>Settings
+                    <flux:navbar.item :href="route('app.spaces.settings')" wire:navigate.hover>
+                        {{ __('Settings') }}
                     </flux:navbar.item>
                 @else
                     {{-- Website Routes --}}
-                    <flux:navbar.item :href="route('root')"
-                                      wire:navigate.hover
-                                      x-data
-                                      x-on:livewire:navigated.window="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)"
-                                      x-init="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)">
-                        Start
-                    </flux:navbar.item>
+                    <flux:navbar.item :href="route('root')" wire:navigate.hover>Start</flux:navbar.item>
                     <flux:navbar.item :href="route('website.features')" wire:navigate.hover>Features</flux:navbar.item>
                     <flux:navbar.item :href="route('website.oss')" wire:navigate.hover>Open Source</flux:navbar.item>
                     <flux:navbar.item :href="route('website.docs')" wire:navigate.hover>Docs</flux:navbar.item>
@@ -65,17 +65,33 @@
                     </flux:navbar>
                 @endif
 
+                <flux:badge class="mr-4"
+                            :color="auth()->user()->currentSpace()->namespace === auth()->user()->slug ? 'blue' : null">{{ auth()->user()->currentSpace()->name }}</flux:badge>
+
                 <flux:dropdown position="top" align="end">
-                    <flux:profile icon:trailing="" icon="arrow-down-tray"
-                                  avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
+                    <flux:profile as="button" size="sm" avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
+
 
                     <flux:menu>
-                        <flux:menu.radio.group>
-                            <flux:menu.item :href="route('app.settings.profile')" icon="cog" wire:navigate.hover>
-                                {{ __('Settings') }}
-                            </flux:menu.item>
-                        </flux:menu.radio.group>
+                        <flux:menu.group :heading="__('Space')">
+                            @foreach(auth()->user()->spaces as $space)
+                                <form action="{{ route('app.spaces.switch', ['space' => $space->id]) }}" method="POST">
+                                    @csrf
+                                    <flux:menu.item
+                                        type="submit"
+                                        :icon="auth()->user()->currentSpace()->id === $space->id ? 'check' : null">
+                                        {{ $space->name }}
+                                    </flux:menu.item>
+                                </form>
+                            @endforeach
+                        </flux:menu.group>
+
+                        <flux:menu.item :href="route('app.settings.profile')" icon="cog" wire:navigate.hover>
+                            {{ __('Settings') }}
+                        </flux:menu.item>
+
                         <flux:menu.separator/>
+
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <flux:menu.item type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
@@ -117,8 +133,9 @@
                 <flux:sidebar.item :href="route('app.repositories.list')" icon="archive-box" wire:navigate>
                     Repositories
                 </flux:sidebar.item>
-                <flux:sidebar.item :href="route('app.settings.profile')" icon="cog" wire:navigate>Settings
-                </flux:sidebar.item>
+                {{--<flux:sidebar.item :href="route('app.settings.profile')" icon="cog" wire:navigate>
+                    Settings
+                </flux:sidebar.item>--}}
             @else
                 <flux:sidebar.item :href="route('root')" wire:navigate>
                     Start
@@ -153,7 +170,7 @@
     </flux:sidebar>
 
     {{-- MAIN CONTENT --}}
-    <flux:main class="flex flex-col p-0!">
+    <flux:main class="flex flex-col p-0! relative">
         {{ $slot }}
     </flux:main>
 

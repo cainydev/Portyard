@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Roles;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -16,10 +17,20 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $myself = User::factory()->create([
             'name' => 'John',
             'email' => 'wajo432@gmail.com',
             'password' => 'password',
+        ]);
+
+        $myself->spaces()->withPivotValue('role', Roles::Owner->value)->create([
+            'name' => 'Work Space',
+            'namespace' => 'workspace',
+        ]);
+
+        $myself->spaces()->withPivotValue('role', Roles::Owner->value)->create([
+            'name' => 'Shared Space',
+            'namespace' => 'shared',
         ]);
 
         User::factory()->count(10)->create();
