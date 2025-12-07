@@ -65,27 +65,37 @@
                     </flux:navbar>
                 @endif
 
-                <flux:badge class="mr-4"
-                            :color="auth()->user()->currentSpace()->namespace === auth()->user()->slug ? 'blue' : null">{{ auth()->user()->currentSpace()->name }}</flux:badge>
-
-                <flux:dropdown position="top" align="end">
-                    <flux:profile as="button" size="sm" avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
-
+                {{-- Space Dropdown --}}
+                <flux:dropdown position="top" align="end" class="mr-4">
+                    <flux:button size="sm">
+                        {{ auth()->user()->currentSpace()->name }}
+                    </flux:button>
 
                     <flux:menu>
-                        <flux:menu.group :heading="__('Space')">
+                        <flux:menu.radio.group name="space" x-on:change="$root.submit()" :heading="__('Space')">
                             @foreach(auth()->user()->spaces as $space)
-                                <form action="{{ route('app.spaces.switch', ['space' => $space->id]) }}" method="POST">
+                                <form x-data action="{{ route('app.spaces.switch', $space) }}" method="POST">
                                     @csrf
-                                    <flux:menu.item
-                                        type="submit"
-                                        :icon="auth()->user()->currentSpace()->id === $space->id ? 'check' : null">
+                                    <flux:menu.item type="submit">
+                                        <div class="w-6 flex items-center">
+                                            @if(auth()->user()->currentSpace()->id === $space->id)
+                                                <flux:icon.check variant="mini"/>
+                                            @endif
+                                        </div>
                                         {{ $space->name }}
                                     </flux:menu.item>
                                 </form>
                             @endforeach
-                        </flux:menu.group>
+                        </flux:menu.radio.group>
+                    </flux:menu>
+                </flux:dropdown>
 
+
+                {{-- Profile Dropdown --}}
+                <flux:dropdown position="top" align="end">
+                    <flux:profile as="button" size="sm" avatar="https://unavatar.io/{{ auth()->user()->email }}"/>
+
+                    <flux:menu>
                         <flux:menu.item :href="route('app.settings.profile')" icon="cog" wire:navigate.hover>
                             {{ __('Settings') }}
                         </flux:menu.item>
@@ -97,21 +107,24 @@
                             <flux:menu.item type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
                         </form>
                     </flux:menu>
-
                 </flux:dropdown>
             @endauth
 
             @guest
                 <flux:navbar class="max-lg:hidden gap-2">
-                    <flux:navbar.item variant="subtle" :href="route('login')" wire:navigate>Login</flux:navbar.item>
-                    <flux:navbar.item variant="primary" :href="route('register')" wire:navigate>Sign up
+                    <flux:navbar.item variant="subtle" :href="route('login')" wire:navigate>
+                        Login
+                    </flux:navbar.item>
+
+                    <flux:navbar.item variant="primary" :href="route('register')" wire:navigate>
+                        Sign up
                     </flux:navbar.item>
                 </flux:navbar>
             @endguest
         </x-container>
     </flux:header>
 
-    {{-- MOBILE SIDEBAR --}}
+    {{-- Mobile Sidebar --}}
     <flux:sidebar sticky collapsible="mobile"
                   class="lg:hidden bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
         <flux:sidebar.header>
@@ -122,20 +135,16 @@
 
         <flux:sidebar.nav>
             @if($isAppRoute)
-                <flux:sidebar.item :href="route('root')"
-                                   icon="home"
-                                   wire:navigate
-                                   x-data
-                                   x-on:livewire:navigated.window="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)"
-                                   x-init="$el.toggleAttribute('data-current', window.location.pathname === new URL($el.href).pathname)">
+                <flux:sidebar.item :href="route('root')" icon="home" wire:navigate>
                     Home
                 </flux:sidebar.item>
                 <flux:sidebar.item :href="route('app.repositories.list')" icon="archive-box" wire:navigate>
                     Repositories
                 </flux:sidebar.item>
-                {{--<flux:sidebar.item :href="route('app.settings.profile')" icon="cog" wire:navigate>
+                <flux:sidebar.item :href="route('app.spaces.settings')" icon="cog"
+                                   wire:navigate>
                     Settings
-                </flux:sidebar.item>--}}
+                </flux:sidebar.item>
             @else
                 <flux:sidebar.item :href="route('root')" wire:navigate>
                     Start
@@ -155,7 +164,8 @@
                 </flux:sidebar.item>
                 <form action="{{ route('logout') }}" method="POST" class="w-full">
                     @csrf
-                    <flux:sidebar.item type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:sidebar.item>
+                    <flux:sidebar.item type="submit" icon="arrow-right-start-on-rectangle">Logout
+                    </flux:sidebar.item>
                 </form>
             </flux:sidebar.nav>
         @endauth
@@ -164,7 +174,8 @@
             <flux:sidebar.nav>
                 <flux:sidebar.item :href="route('login')" icon="arrow-right-end-on-rectangle" wire:navigate>Login
                 </flux:sidebar.item>
-                <flux:sidebar.item :href="route('register')" icon="user-plus" wire:navigate>Sign up</flux:sidebar.item>
+                <flux:sidebar.item :href="route('register')" icon="user-plus" wire:navigate>Sign up
+                </flux:sidebar.item>
             </flux:sidebar.nav>
         @endguest
     </flux:sidebar>

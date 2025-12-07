@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,25 +19,19 @@ class User extends Authenticatable
 {
     use HasFactory, HasUuids, Notifiable, TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $with = [
+        'spaces',
     ];
 
     protected static function booted(): void
@@ -73,17 +66,6 @@ class User extends Authenticatable
             ->withPivot(['role']);
     }
 
-    public function ownedRepositories(): BelongsToMany
-    {
-        return $this->belongsToMany(Repository::class)
-            ->withPivotValue('role', 'owner');
-    }
-
-    public function collaborations(): HasMany
-    {
-        return $this->hasMany(Collaborator::class);
-    }
-
     /**
      * Get the user's initials
      */
@@ -96,15 +78,26 @@ class User extends Authenticatable
             ->implode('');
     }
 
-    public function currentSpace(): ?Space
+    public function currentSpace(): Space
     {
-        $spaceId = session('current_space_id');
+        if (session()->has('current_space_id')) {
+            $spaceId = session('current_space_id');
 
-        if (! $spaceId) {
-            return $this->spaces()->first();
+            $space = $this->spaces()->find($spaceId);
+
+            if ($space) {
+                return $space;
+            }
         }
 
-        return $this->spaces()->find($spaceId);
+        $fallback = $this->spaces()->where('namespace', $this->username)->first()
+            ?? $this->spaces()->first();
+
+        if ($fallback) {
+            session(['current_space_id' => $fallback->id]);
+        }
+
+        return $fallback;
     }
 
     public function spaces(): BelongsToMany

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TokenController;
 use App\Http\Middleware\AuthenticateAccount;
+use App\Models\Space;
 use App\Models\Tag;
 use App\Models\User;
 use Cainy\Dockhand\Facades\Dockhand;
@@ -24,7 +25,7 @@ Route::middleware('auth')
     ->group(function () {
         /** Spaces */
         Route::prefix('spaces')->name('spaces.')->group(function () {
-            Route::post('/switch/{space}', function (Request $request, \App\Models\Space $space) {
+            Route::post('/switch/{space}', function (Request $request, Space $space) {
                 if ($request->user()->cannot('view', $space)) {
                     abort(403);
                 }

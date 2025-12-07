@@ -10,12 +10,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use function abort;
+
 #[UsePolicy(SpacePolicy::class)]
 class Space extends Model
 {
     use HasUuids;
 
     protected $guarded = [];
+
+    public static function current(): self
+    {
+        if (! auth()->check()) {
+            abort(403);
+        }
+
+        return auth()->user()->currentSpace();
+    }
 
     public function owners(): BelongsToMany
     {

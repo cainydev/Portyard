@@ -35,7 +35,7 @@ class Repository extends Model
     public function owners(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->using(Collaborator::class)
+            ->using(Member::class)
             ->withPivotValue('role', Roles::Owner)
             ->withTimestamps();
     }
@@ -45,15 +45,15 @@ class Repository extends Model
         return $this->belongsTo(Space::class);
     }
 
-    public function collaborators(): HasMany
+    public function members(): HasMany
     {
-        return $this->hasMany(Collaborator::class);
+        return $this->hasMany(Member::class);
     }
 
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->using(Collaborator::class)
+            ->using(Member::class)
             ->withPivot(['role'])
             ->withTimestamps();
     }
@@ -61,7 +61,7 @@ class Repository extends Model
     public function maintainers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->using(Collaborator::class)
+            ->using(Member::class)
             ->withPivotValue('role', Roles::Maintainer)
             ->withTimestamps();
     }
@@ -69,7 +69,7 @@ class Repository extends Model
     public function developers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->using(Collaborator::class)
+            ->using(Member::class)
             ->withPivotValue('role', Roles::Developer)
             ->withTimestamps();
     }
@@ -77,7 +77,7 @@ class Repository extends Model
     public function viewers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->using(Collaborator::class)
+            ->using(Member::class)
             ->withPivotValue('role', Roles::Viewer)
             ->withTimestamps();
     }

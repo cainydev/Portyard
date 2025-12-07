@@ -56,4 +56,9 @@ new class extends Component {
         <flux:heading size="lg">Latest pushes</flux:heading>
         <flux:text>No recent pushes.</flux:text>
     </x-container>
+
+    <x-container class="p-6 lg:p-8 flex flex-col gap-4">
+        <flux:heading size="lg">Recent activity</flux:heading>
+        <flux:text>No recent activity.</flux:text>
+    </x-container>
 </div>
