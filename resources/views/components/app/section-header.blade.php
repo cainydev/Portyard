@@ -17,9 +17,9 @@
         @endisset
     </div>
 
-    @isset($slot)
+    @if($slot->isNotEmpty())
         <div class="flex items-center gap-4">
             {{ $slot }}
         </div>
-    @endisset
+    @endif
 </div>

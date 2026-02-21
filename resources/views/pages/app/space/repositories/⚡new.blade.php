@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Repository;
+use App\Models\Space;
 use App\Rules\ValidRepositoryName;
 use App\Services\NamingService;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
 
@@ -12,25 +14,34 @@ new class extends Component {
 
     public string $visibility = 'private';
     public bool $immutable = false;
-    public bool $scanOnPush = true;
+    public bool $scanOnPush = false;
 
-    public string $namespace = '';
+    public string $spaceId;
 
     protected function rules(): array
     {
         return [
+            'spaceId' => 'required|exists:spaces,id',
             'name' => ['required', new ValidRepositoryName],
             'description' => 'nullable|string|max:255',
         ];
     }
 
-    public function mount(): void
+    #[Computed]
+    public function space(): Space
     {
-        $this->namespace = auth()->user()->namespace;
+        return Space::findOrFail($this->spaceId);
     }
 
-    public function updated(): void
+    public function mount(): void
     {
+        $this->spaceId = auth()->user()->currentSpace()->id;
+    }
+
+    public function updated(string $attribute): void
+    {
+        if ($attribute === 'spaceId' && empty($this->name)) return;
+
         $this->validate();
     }
 
@@ -40,8 +51,7 @@ new class extends Component {
 
         DB::beginTransaction();
 
-        $repository = Repository::create([
-            'namespace' => $this->namespace,
+        $repository = $this->space->repositories()->create([
             'name' => $this->name,
             'description' => $this->description,
             'public' => $this->visibility === 'public',
@@ -49,7 +59,13 @@ new class extends Component {
 
         DB::commit();
 
-        $this->redirect(route('app.repositories.overview', [$this->namespace, $repository->name]), navigate: true);
+        $this->redirect(route('app.space.repositories.overview', [$this->space, $repository]), navigate: true);
+    }
+
+    public function render()
+    {
+        return $this->view()
+            ->title(__('New Repository'));
     }
 };
 ?>
@@ -67,7 +83,8 @@ new class extends Component {
         <x-app.section-header class="p-6 lg:p-8"
                               :title="__('New Repository')"
                               :subtitle="__('Create a new repository to start pushing your images.')">
-            <flux:button :href="route('app.repositories.list')" icon="arrow-left" variant="subtle" wire:navigate.hover>
+            <flux:button :href="route('app.space.repositories.list')" icon="arrow-left" variant="subtle"
+                         wire:navigate.hover>
                 Back to Repositories
             </flux:button>
         </x-app.section-header>
@@ -80,14 +97,29 @@ new class extends Component {
                 <div class="space-y-6 lg:space-y-8 p-6 lg:p-8">
                     <flux:field>
                         <flux:label for="name">Repository Name</flux:label>
-                        <flux:input type="text" name="name" id="name" required wire:model.live="name"
-                                    :prefix="$namespace . '/'"
-                                    placeholder="my-app"
-                        />
-                        <flux:error name="name"/>
+                        <flux:input.group>
+                            <flux:select variant="listbox" class="max-w-fit" wire:model.live="spaceId">
+                                @foreach(auth()->user()->spaces as $space)
+                                    @if(auth()->user()->can('createRepository', $space))
+                                        <flux:select.option
+                                            :value="$space->id">{{ $space->name }}
+                                        </flux:select.option>
+                                    @endif
+                                @endforeach
+                            </flux:select>
+
+                            <flux:input type="text"
+                                        name="name"
+                                        id="name"
+                                        required
+                                        wire:model.live="name"
+                                        placeholder="my-app"/>
+                        </flux:input.group>
                         <flux:description>
                             Great repository names are short and memorable.
                         </flux:description>
+                        <flux:error name="space"/>
+                        <flux:error name="name"/>
                     </flux:field>
 
                     <flux:field>
@@ -137,7 +169,7 @@ new class extends Component {
                             <span>portyard.de</span>
                             <span>/</span>
                             <span
-                                class="text-zinc-900 dark:text-zinc-100 font-semibold">{{ $namespace }}</span>
+                                class="text-zinc-900 dark:text-zinc-100 font-semibold">{{ $this->space->namespace }}</span>
                             <span>/</span>
                             <span
                                 class="text-zinc-900 dark:text-zinc-100 font-semibold"
@@ -162,7 +194,7 @@ new class extends Component {
                         <x-terminal-command>
                             <x-slot:comment>2. Tag your local image</x-slot:comment>
                             <x-slot:command>
-                                docker tag image:latest <span class="break-all">portyard.de/{{ $namespace }}/<span
+                                docker tag image:latest <span class="break-all">portyard.de/{{$this->space->namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>
@@ -170,7 +202,7 @@ new class extends Component {
                         <x-terminal-command>
                             <x-slot:comment>3. Push the image</x-slot:comment>
                             <x-slot:command>
-                                docker push <span class="break-all">portyard.de/{{ $namespace }}/<span
+                                docker push <span class="break-all">portyard.de/{{ $this->space->namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>

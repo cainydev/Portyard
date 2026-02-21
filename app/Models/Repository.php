@@ -7,29 +7,37 @@ use App\Policies\RepositoryPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use function auth;
-
 #[UsePolicy(RepositoryPolicy::class)]
 class Repository extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $guarded = [];
 
     protected $with = ['space'];
 
-    public static function booted(): void
+    public static function fromPath(string $path): self
     {
-        self::created(function (self $repository) {
-            if (auth()->check()) {
-                $repository->owners()->attach(auth()->user());
-            }
-        });
+        $parts = explode('/', $path, 2);
+
+        if (count($parts) !== 2) {
+            throw new ModelNotFoundException;
+        }
+
+        [$namespace, $name] = $parts;
+
+        $space = Space::where('namespace', $namespace)->firstOrFail();
+
+        return $space->repositories()
+            ->where('name', $name)
+            ->firstOrFail();
     }
 
     public function owners(): BelongsToMany
@@ -95,5 +103,13 @@ class Repository extends Model
     public function path(): Attribute
     {
         return Attribute::make(get: fn () => "{$this->space->namespace}/{$this->name}");
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
     }
 }

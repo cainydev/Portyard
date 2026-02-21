@@ -1,0 +1,25 @@
+[
+  {
+    "label": "Laravel: Generate IDE Helper (Models)",
+    "command": "php",
+    "args": ["artisan", "ide-helper:models", "-W"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "hide": "on_success",
+  },
+  {
+    "label": "Laravel: Generate IDE Helper (Facades & Meta)",
+    "command": "php",
+    "args": [
+      "artisan",
+      "ide-helper:generate",
+      "&&",
+      "php",
+      "artisan",
+      "ide-helper:meta",
+    ],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "hide": "on_success",
+  },
+]

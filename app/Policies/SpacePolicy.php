@@ -13,7 +13,7 @@ class SpacePolicy
      */
     public function view(User $user, Space $space): bool
     {
-        return $space->users->contains($user);
+        return $user->spaces()->where('space_id', $space->id)->exists();
     }
 
     /**
@@ -29,11 +29,12 @@ class SpacePolicy
      */
     protected function hasSpaceRole(User $user, Space $space, array $allowedRoles): bool
     {
-        $member = $space->users()->where('user_id', $user->id)->first();
+        $allowedValues = array_map(fn ($r) => $r->value ?? $r, $allowedRoles);
 
-        $allowedValues = array_map(fn ($r) => $r->value, $allowedRoles);
-
-        return $member && in_array($member->pivot->role, $allowedValues);
+        return $user->spaces()
+            ->where('space_id', $space->id)
+            ->wherePivotIn('role', $allowedValues)
+            ->exists();
     }
 
     /**
@@ -48,6 +49,30 @@ class SpacePolicy
      * Only Owners (and maybe Maintainers) can invite new members to the space.
      */
     public function manageMembers(User $user, Space $space): bool
+    {
+        return $this->hasSpaceRole($user, $space, [Roles::Owner, Roles::Maintainer]);
+    }
+
+    /**
+     * Only Owners and Maintainers can invite new members to the space.
+     */
+    public function invite(User $user, Space $space): bool
+    {
+        return $this->hasSpaceRole($user, $space, [Roles::Owner, Roles::Maintainer]);
+    }
+
+    /**
+     * Anyone in the space can create a repository.
+     */
+    public function createRepository(User $user, Space $space): bool
+    {
+        return $this->hasSpaceRole($user, $space, [Roles::Owner, Roles::Maintainer, Roles::Developer]);
+    }
+
+    /**
+     * Only Owners and Maintainers can delete a repository.
+     */
+    public function deleteRepository(User $user, Space $space): bool
     {
         return $this->hasSpaceRole($user, $space, [Roles::Owner, Roles::Maintainer]);
     }

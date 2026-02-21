@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Roles;
+use App\Events\User\UserUpdated;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,16 +49,17 @@ class User extends Authenticatable
 
             $space->users()->attach($model, ['role' => Roles::Owner->value]);
         });
+
+        static::updated(function (User $user) {
+            if ($user->wasChanged(['name', 'email', 'password'])) {
+                UserUpdated::dispatch($user);
+            }
+        });
     }
 
     public function tags(): HasManyThrough
     {
         return $this->hasManyThrough(Tag::class, Repository::class);
-    }
-
-    public function namespace(): Attribute
-    {
-        return new Attribute(get: fn () => str($this->name)->slug()->lower());
     }
 
     public function repositories(): BelongsToMany
@@ -90,14 +92,9 @@ class User extends Authenticatable
             }
         }
 
-        $fallback = $this->spaces()->where('namespace', $this->username)->first()
-            ?? $this->spaces()->first();
+        session(['current_space_id' => $this->personalSpace->id]);
 
-        if ($fallback) {
-            session(['current_space_id' => $fallback->id]);
-        }
-
-        return $fallback;
+        return $this->personalSpace;
     }
 
     public function spaces(): BelongsToMany
@@ -106,6 +103,27 @@ class User extends Authenticatable
             ->using(Member::class)
             ->withPivot(['role'])
             ->withTimestamps();
+    }
+
+    /** @return Attribute<Space> */
+    public function personalSpace(): Attribute
+    {
+        return Attribute::make(get: fn () => $this->spaces()->where('namespace', $this->username)->first() ?? $this->spaces()->first());
+    }
+
+    public function switchSpace(Space $space): void
+    {
+        if ($this->spaces()->where('spaces.id', $space->id)->exists()) {
+            session(['current_space_id' => $space->id]);
+        }
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
     }
 
     /**

@@ -6,46 +6,37 @@ services:
     ports:
       - "5000:5000"
     environment:
-      # Enable Token Auth
+      # --- Authentication & General Config ---
       REGISTRY_AUTH: token
-
-      # Who issued the token? (Matches DOCKHAND_AUTHORITY_NAME)
       REGISTRY_AUTH_TOKEN_ISSUER: '${DOCKHAND_AUTHORITY_NAME}'
-
-      # What service is this? (Matches DOCKHAND_REGISTRY_NAME)
       REGISTRY_AUTH_TOKEN_SERVICE: '${DOCKHAND_REGISTRY_NAME}'
-
-      # Where do users login?
       REGISTRY_AUTH_TOKEN_REALM: 'https://${APP_DOMAIN}/auth/token'
-
-      # Internal Certificate Path (Where we mount it inside the container)
       REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/auth.pem
 
-      # Notifications Endpoint URL
+      # --- Notifications ---
       REGISTRY_NOTIFICATIONS_ENDPOINTS_0_URL: 'https://${APP_DOMAIN}${DOCKHAND_NOTIFICATIONS_ROUTE}'
-
-      # Notifications Authorization Header
       REGISTRY_NOTIFICATIONS_ENDPOINTS_0_HEADERS_Authorization: 'Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}'
-
-      # Notifications Config
       REGISTRY_NOTIFICATIONS_ENDPOINTS_0_TIMEOUT: 500ms
       REGISTRY_NOTIFICATIONS_ENDPOINTS_0_THRESHOLD: 5
       REGISTRY_NOTIFICATIONS_ENDPOINTS_0_BACKOFF: 1s
 
-      # Reuse APP_KEY for the registry's internal cookie secret
       REGISTRY_HTTP_SECRET: '${APP_KEY}'
 
+      # --- S3 Storage Configuration (Hetzner) ---
+      REGISTRY_STORAGE: s3
+      REGISTRY_STORAGE_S3_ACCESSKEY: '${HETZNER_S3_ACCESS_KEY}'
+      REGISTRY_STORAGE_S3_SECRETKEY: '${HETZNER_S3_SECRET_KEY}'
+      REGISTRY_STORAGE_S3_REGION: '${HETZNER_S3_REGION}'
+      REGISTRY_STORAGE_S3_BUCKET: '${HETZNER_S3_BUCKET}'
+      REGISTRY_STORAGE_S3_REGIONENDPOINT: '${HETZNER_S3_ENDPOINT}'
+      REGISTRY_STORAGE_DELETE_ENABLED: 'true'
+
     volumes:
+      # Note: With S3 enabled, this volume is no longer the primary storage
+      # but is still used for buffering multipart uploads.
       - portyard-registry:/var/lib/registry
       - ./registry.yml:/etc/docker/registry/config.yml
       - ./certs/auth.crt:/etc/docker/registry/auth.pem:ro
-
-    networks:
-      - portyard_net
-
-networks:
-  portyard_net:
-    driver: bridge
 
 volumes:
   portyard-registry:

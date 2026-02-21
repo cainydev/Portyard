@@ -4,7 +4,11 @@ use App\Enums\Roles;
 use Livewire\Component;
 
 new class extends Component {
-    //
+    public function render()
+    {
+        return $this->view()
+            ->title(__('Repositories'));
+    }
 };
 ?>
 
@@ -20,7 +24,7 @@ new class extends Component {
         <x-app.section-header class="p-6 lg:p-8"
                               :title="__('Space Repositories')"
                               :subtitle="__('These are all the repositories that were created in this space - either manually or by pushing a tag.')">
-            <flux:button :href="route('app.repositories.new')" icon="plus" wire:navigate.hover>
+            <flux:button :href="route('app.space.repositories.new')" icon="plus" wire:navigate.hover>
                 New Repository
             </flux:button>
         </x-app.section-header>
@@ -39,30 +43,38 @@ new class extends Component {
                         <flux:table.row
                             class="hover:bg-zinc-50/20 hover:dark:bg-zinc-700/20">
                             <flux:table.cell class="border-stitched first:ps-6 lg:first:ps-8">
-                                <div class="flex items-center gap-0.5">
-                                    <flux:text variant="subtle">{{ auth()->user()->namespace }}</flux:text>
+                                <div class="flex items-center gap-0.5 h-full">
+                                    <flux:text variant="subtle">{{ $repo->space->namespace }}</flux:text>
                                     <flux:text>/</flux:text>
                                     <flux:text>{{ $repo->name }}</flux:text>
                                 </div>
                             </flux:table.cell>
                             <flux:table.cell class="border-stitched">
-                                @if($repo->public)
-                                    <flux:icon name="globe-alt" class="stroke-green-500"/>
-                                @else
-                                    <flux:icon name="lock-closed" class="stroke-blue-500"/>
-                                @endif
+                                <div class="flex items-center gap-2 h-full">
+                                    @if($repo->public)
+                                        <flux:icon name="globe-alt" class="stroke-green-500"/>
+                                        <flux:text class="mt-px">{{ __('Public') }}</flux:text>
+                                    @else
+                                        <flux:icon name="lock-closed" class="stroke-blue-500"/>
+                                        <flux:text class="mt-px">{{ __('Private') }}</flux:text>
+                                    @endif
+                                </div>
                             </flux:table.cell>
                             <flux:table.cell class="border-stitched">
-                                <flux:text variant="subtle">No recent pushes</flux:text>
+                                <div class="flex items-center gap-2 h-full">
+                                    <flux:text variant="subtle">No recent pushes</flux:text>
+                                </div>
                             </flux:table.cell>
                             <flux:table.cell class="border-stitched w-px last:pe-6 lg:last:pe-8">
-                                <flux:button :href="route('app.repositories.overview', [$repo->namespace, $repo->name])"
-                                             wire:navigate.hover
-                                             variant="outline"
-                                             size="sm"
-                                             icon-trailing="arrow-right">
-                                    Manage
-                                </flux:button>
+                                <div class="flex items-center gap-2 h-full">
+                                    <flux:button :href="route('app.space.repositories.overview', [$repo->space, $repo])"
+                                                 wire:navigate.hover
+                                                 variant="outline"
+                                                 size="sm"
+                                                 icon-trailing="arrow-right">
+                                        Manage
+                                    </flux:button>
+                                </div>
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

@@ -9,6 +9,7 @@ use Cainy\Dockhand\Resources\ManifestList;
 use Cainy\Dockhand\Resources\ManifestResource;
 use Exception;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,7 +18,7 @@ use Throwable;
 
 class Manifest extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'digest',
@@ -96,7 +97,7 @@ class Manifest extends Model
      */
     public function isManifestList(): bool
     {
-        return $this->media_type->isImageManifestList();
+        return $this->media_type->isManifestList();
     }
 
     /**
