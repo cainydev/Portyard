@@ -2,96 +2,101 @@
 
 namespace App\Policies;
 
+use App\Enums\Roles;
 use App\Models\Repository;
 use App\Models\User;
 
 class RepositoryPolicy
 {
     /**
-     * Determine whether the user can view the repo.
+     * View/Pull: Public OR Space Member (Any) OR Repo Collaborator (Any).
      */
     public function view(User $user, Repository $repository): bool
     {
-        return $repository->public
-            || $repository->users->contains($user);
+        if ($repository->public) {
+            return true;
+        }
+
+        if ($repository->space->users->contains($user)) {
+            return true;
+        }
+
+        return $repository->users->contains($user);
     }
 
     /**
-     * Determine whether the user can pull the repo.
-     */
-    public function pull(User $user, Repository $repository): bool
-    {
-        return $repository->public
-            || $repository->users->contains($user);
-    }
-
-    /**
-     * Determine whether the user can push models.
+     * Push: Space (Dev+) OR Repo (Dev+).
      */
     public function push(User $user, Repository $repository): bool
     {
-        return $repository->developers->contains($user)
-            || $repository->maintainers->contains($user)
-            || $repository->owners->contains($user);
+        $writeRoles = [Roles::Owner, Roles::Maintainer, Roles::Developer];
+
+        if ($this->hasSpaceRole($user, $repository, $writeRoles)) {
+            return true;
+        }
+
+        return $this->hasRepoRole($user, $repository, $writeRoles);
     }
 
     /**
-     * Determine whether the user can delete from the repo.
+     * Checks if the user has a specific role in the parent space.
      */
-    public function delete(User $user, Repository $repository): bool
+    protected function hasSpaceRole(User $user, Repository $repository, array $allowedRoles): bool
     {
-        return $repository->developers->contains($user)
-            || $repository->maintainers->contains($user)
-            || $repository->owners->contains($user);
+        $membership = $repository->space->users()
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $membership) {
+            return false;
+        }
+
+        $allowedValues = array_map(fn ($r) => $r->value, $allowedRoles);
+
+        return in_array($membership->pivot->role, $allowedValues);
     }
 
     /**
-     * Determine whether the user can edit/view the general settings.
+     * Checks if the user has a specific role explicitly on the REPOSITORY.
      */
-    public function manageGeneral(User $user, Repository $repository): bool
+    protected function hasRepoRole(User $user, Repository $repository, array $allowedRoles): bool
     {
-        return $repository->maintainers->contains($user)
-            || $repository->owners->contains($user);
+        $collaborator = $repository->users()
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $collaborator) {
+            return false;
+        }
+
+        $allowedValues = array_map(fn ($r) => $r->value, $allowedRoles);
+
+        return in_array($collaborator->pivot->role, $allowedValues);
     }
 
     /**
-     * Determine whether the user can edit/view the webhook settings.
-     */
-    public function manageWebhooks(User $user, Repository $repository): bool
-    {
-        return $repository->maintainers->contains($user)
-            || $repository->owners->contains($user);
-    }
-
-    /**
-     * Determine whether the user can edit/view the permission settings.
-     */
-    public function manageCollaborators(User $user, Repository $repository): bool
-    {
-        return $repository->owners->contains($user);
-    }
-
-    /**
-     * Determine whether the user can change visibility of the repo.
-     */
-    public function changeVisibility(User $user, Repository $repository): bool
-    {
-        return $this->manageSettings($user, $repository);
-    }
-
-    /**
-     * Determine whether the user can edit/view the settings;
+     * Manage Webhooks/Settings: Space (Maintainer+) OR Repo (Maintainer+).
      */
     public function manageSettings(User $user, Repository $repository): bool
     {
-        return $repository->owners->contains($user);
+        $adminRoles = [Roles::Owner, Roles::Maintainer];
+
+        if ($this->hasSpaceRole($user, $repository, $adminRoles)) {
+            return true;
+        }
+
+        return $this->hasRepoRole($user, $repository, $adminRoles);
     }
 
     /**
-     * Determine whether the user can permanently delete the repo.
+     * Delete Repo: Space (Owner Only) OR Repo (Owner Only).
      */
-    public function deleteRepository(User $user, Repository $repository): bool
+    public function delete(User $user, Repository $repository): bool
     {
-        return $this->manageSettings($user, $repository);
+        if ($this->hasSpaceRole($user, $repository, [Roles::Owner])) {
+            return true;
+        }
+
+        return $this->hasRepoRole($user, $repository, [Roles::Owner]);
     }
 }

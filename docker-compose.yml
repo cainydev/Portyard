@@ -2,7 +2,7 @@ services:
     # ---------- Traefik reverse proxy ----------
     traefik:
         container_name: portyard-traefik
-        image: traefik:v3.4
+        image: traefik:3.6.1
         ports:
             - "80:80"
             - "443:443"
@@ -26,11 +26,11 @@ services:
     laravel:
         container_name: portyard-laravel
         build:
-            context: ./vendor/laravel/sail/runtimes/8.4
+            context: ./vendor/laravel/sail/runtimes/8.5
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: sail-8.4/app
+        image: sail-8.5/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         environment:
@@ -49,7 +49,7 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql
+            - mariadb
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.laravel.rule=Host(`${APP_DOMAIN:-portyard.local}`)"
@@ -59,29 +59,29 @@ services:
             - "traefik.http.routers.laravel.priority=10"
             - "traefik.http.services.laravel-web.loadbalancer.server.port=80"
 
-
-    # ---------- MySQL database ----------
-    mysql:
-        container_name: portyard-mysql
-        image: 'mysql/mysql-server:8.0'
+    # ---------- MariaDB database ----------
+    mariadb:
+        container_name: portyard-mariadb
+        image: 'mariadb:11.4'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ROOT_HOST: '%'
-            MYSQL_DATABASE: '${DB_DATABASE}'
-            MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+            MARIADB_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MARIADB_ROOT_HOST: '%'
+            MARIADB_DATABASE: '${DB_DATABASE}'
+            MARIADB_USER: '${DB_USERNAME}'
+            MARIADB_PASSWORD: '${DB_PASSWORD}'
+            MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
-            - 'portyard-mysql:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+            - 'portyard-mariadb:/var/lib/mysql'
+            - './vendor/laravel/sail/database/mariadb/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
         healthcheck:
-            test: 'CMD mysqladmin ping -p${DB_PASSWORD}'
-            retries: 3
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            interval: 10s
             timeout: 5s
+            retries: 3
 
     # ---------- Valkey storage ----------
     valkey:
@@ -105,18 +105,42 @@ services:
         ports:
             - "5000:5000"
             - "5001:5001"
-        #environment:
-            #REGISTRY_STORAGE_S3_ACCESSKEY: '${HETZNER_S3_ACCESS_KEY}'
-            #REGISTRY_STORAGE_S3_SECRETKEY: '${HETZNER_S3_SECRET_KEY}'
-            #REGISTRY_STORAGE_S3_REGIONENDPOINT: '${HETZNER_S3_ENDPOINT}'
-            #REGISTRY_STORAGE_S3_REGION: '${HETZNER_S3_REGION}'
-            #REGISTRY_STORAGE_S3_BUCKET: '${HETZNER_S3_BUCKET}'
+        environment:
+            # Enable Token Auth
+            REGISTRY_AUTH: token
+
+            # Who issued the token? (Matches DOCKHAND_AUTHORITY_NAME)
+            REGISTRY_AUTH_TOKEN_ISSUER: '${DOCKHAND_AUTHORITY_NAME}'
+
+            # What service is this? (Matches DOCKHAND_REGISTRY_NAME)
+            REGISTRY_AUTH_TOKEN_SERVICE: '${DOCKHAND_REGISTRY_NAME}'
+
+            # Where do users login?
+            REGISTRY_AUTH_TOKEN_REALM: 'https://${APP_DOMAIN:-portyard.local}/auth/token'
+
+            # Internal Certificate Path (Where we mount it inside the container)
+            REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/auth.pem
+
+            # Notifications Endpoint URL
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_URL: 'https://${APP_DOMAIN:-portyard.local}${DOCKHAND_NOTIFICATIONS_ROUTE}'
+
+            # Notifications Authorization Header
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_HEADERS_Authorization: 'Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}'
+
+            # Notifications Config
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_TIMEOUT: 500ms
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_THRESHOLD: 5
+            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_BACKOFF: 1s
+
+            # Reuse APP_KEY for the registry's internal cookie secret
+            REGISTRY_HTTP_SECRET: '${APP_KEY}'
+
         networks:
             - sail
         volumes:
             - portyard-registry:/var/lib/registry
             - ./registry.yml:/etc/docker/registry/config.yml
-            - ./certs/public/:/root/certs/
+            - ./certs/public/cert.pem:/etc/docker/registry/auth.pem:ro
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.registry.rule=Host(`${APP_DOMAIN:-portyard.local}`) && PathPrefix(`/v2/`)"
@@ -129,7 +153,7 @@ networks:
         driver: bridge
 
 volumes:
-    portyard-mysql:
+    portyard-mariadb:
         driver: local
     portyard-valkey:
         driver: local
