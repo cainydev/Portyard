@@ -1,12 +1,11 @@
-<div align="center">
-    <img src="resources/images/portyard.png" alt="portyard" width="120">
-</div>
+<img width="2498" height="798" alt="Frame 5(1)" src="https://github.com/user-attachments/assets/2397ef90-c28c-49ad-949a-59504340ab49" />
 
-# Portyard Registry
+## Portyard Registry
 
-A container image registry and management UI built on Laravel and Filament.
+A container image registry management UI built with Laravel and Filament.
 
-## Cloud Service: [portyard.de](https://portyard.de)
+
+### Cloud Service: [portyard.de](https://portyard.de)
 
 To push an image to the official hosted service:
 
@@ -26,7 +25,7 @@ To push an image to the official hosted service:
 
 Replace `<username>`, `<repository>`, and `<tag>` with your values.
 
-## Self-hosting (minimal)
+### Self-hosting (minimal)
 
 You can self-host Portyard. Most things will work with a Docker Compose deployment.
 1. Clone the repo
@@ -34,10 +33,10 @@ You can self-host Portyard. Most things will work with a Docker Compose deployme
 3. Generate JWT keys for Dockhand and point DOCKHAND_PRIVATE_KEY/DOCKHAND_PUBLIC_KEY to them
 4. Run Docker Compose
 
-## License
+### License
 
 See the LICENSE file in this repository.
 
-## Contact
+### Contact
 
 Report issues via GitHub Issues or reach out on GitHub: [@cainydev](https://github.com/cainydev)
