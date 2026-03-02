@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Space;
+use App\Facades\CurrentSpace;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -12,21 +12,10 @@ class EnsureSpaceAccess
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $targetSpace = $request->route('space');
+        $space = CurrentSpace::get();
 
-        if (! $targetSpace instanceof Space) {
-
-            return $next($request);
-        }
-
-        if (Gate::denies('view', $targetSpace)) {
+        if (! $space || Gate::denies('view', $space)) {
             abort(404);
-        }
-
-        $currentId = session('current_space_id');
-
-        if ($currentId !== $targetSpace->id) {
-            session(['current_space_id' => $targetSpace->id]);
         }
 
         return $next($request);

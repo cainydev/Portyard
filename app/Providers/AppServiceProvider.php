@@ -13,6 +13,7 @@ use App\Models\Space;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Webhook;
+use App\Services\CurrentSpaceService;
 use App\Services\NamingService;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\URL;
@@ -62,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(NamingService::class, fn () => new NamingService);
+        $this->app->scoped(NamingService::class);
+        $this->app->scoped(CurrentSpaceService::class);
     }
 }

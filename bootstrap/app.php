@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Middleware\SetSpaceDefaults;
+use App\Http\Middleware\InitializeSpace;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,11 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->appendToGroup('web', SetSpaceDefaults::class);
+        $middleware->appendToGroup('web', [
+            InitializeSpace::class,
+        ]);
 
         $middleware->prependToPriorityList(
             before: SubstituteBindings::class,
-            prepend: SetSpaceDefaults::class,
+            prepend: InitializeSpace::class,
         );
     })
     ->withExceptions(function (Exceptions $exceptions) {
