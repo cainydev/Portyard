@@ -1,4 +1,4 @@
-<img width="2498" height="798" alt="Frame 5(1)" src="https://github.com/user-attachments/assets/2397ef90-c28c-49ad-949a-59504340ab49" />
+<img width="2498" height="798" alt="Portyard Banner" src="https://github.com/user-attachments/assets/2397ef90-c28c-49ad-949a-59504340ab49" />
 
 ## Portyard Registry
 
@@ -9,7 +9,7 @@ A container image registry management UI built with Laravel and Filament.
 
 To push an image to the official hosted service:
 
-1. Create an account at [https://portyard.de](https://portyard.de) and create and repository.
+1. Create an account at [https://portyard.de](https://portyard.de) and create a repository.
 
 2. Tag the image:
    `docker tag <local-image> portyard.de/<username>/<repository>:<tag>`
