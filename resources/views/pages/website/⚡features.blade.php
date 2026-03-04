@@ -9,183 +9,167 @@ new #[Layout('layouts::app')] class extends Component {
 ?>
 
 <div class="flex flex-col grow">
-    <x-container>
-        <flux:badge icon="identification">Sovereign Infrastructure</flux:badge>
+    <x-container inset>
+        <div class="grid grid-cols-1 lg:grid-cols-3">
+            {{-- Hero row --}}
+            <div class="p-6 lg:p-8 lg:col-span-2">
+                <flux:badge icon="identification">Sovereign Infrastructure</flux:badge>
 
-        <div class="mt-10 lg:mt-12">
-            <flux:heading level="1"
-                          class="text-5xl! font-semibold tracking-tight text-balance sm:text-7xl! max-w-4xl">
-                Built for privacy-first container management
-            </flux:heading>
+                <div class="mt-10 lg:mt-12">
+                    <flux:heading level="1"
+                                  class="text-5xl! font-semibold tracking-tight text-balance sm:text-7xl! max-w-4xl">
+                        Built for privacy-first container management
+                    </flux:heading>
 
-            <flux:subheading class="mt-8 text-xl max-w-2xl">
-                Store, secure, and deploy your container images with the peace of mind that comes from strict German
-                data laws and high-performance infrastructure.
-            </flux:subheading>
-        </div>
+                    <flux:subheading class="mt-8 text-xl max-w-2xl">
+                        Store, secure, and deploy your container images with the peace of mind that comes from strict German
+                        data laws and high-performance infrastructure.
+                    </flux:subheading>
+                </div>
+            </div>
+            <div class="hidden lg:block border-stitched bg-diag-lines lg:border-l"></div>
 
-        <div class="mt-10 lg:mt-12 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
-            <flux:card class="flex flex-col gap-6">
-                <div>
-                    <div class="flex items-center gap-x-3">
-                        <flux:icon name="server" variant="mini"/>
-                        <flux:heading level="3">Hosted in Frankfurt</flux:heading>
-                    </div>
-
-                    <flux:text class="mt-4">
-                        Your data never leaves Germany. We run on Green Energy bare-metal servers in Frankfurt,
-                        ensuring low latency for your EU customers and full GDPR compliance.
-                    </flux:text>
+            {{-- Feature cards row --}}
+            <div class="p-6 lg:p-8 border-t border-stitched border-b lg:border-b-0 lg:border-r">
+                <div class="flex items-center gap-x-3">
+                    <flux:icon name="server" variant="mini"/>
+                    <flux:heading level="3">Hosted in Frankfurt</flux:heading>
                 </div>
 
-                <div class="grow flex items-end">
-                    <flux:button href="#" variant="outline" size="sm" icon-trailing="arrow-right">
-                        Read our DPA
-                    </flux:button>
-                </div>
-            </flux:card>
-
-            <flux:card class="flex flex-col gap-6">
-                <div>
-                    <div class="flex items-center gap-x-3">
-                        <flux:icon name="shield-check" variant="mini"/>
-                        <flux:heading level="3">Automatic CVE Scanning</flux:heading>
-                    </div>
-
-                    <flux:text class="mt-4">
-                        Don't deploy vulnerabilities. Every image pushed to your registry is automatically scanned
-                        against the latest CVE databases, with detailed reports generated instantly.
-                    </flux:text>
-                </div>
-
-                <div class="grow flex items-end">
-                    <flux:button href="#" variant="outline" size="sm" icon-trailing="arrow-right">
-                        View security
-                    </flux:button>
-                </div>
-            </flux:card>
-
-            <flux:card class="flex flex-col gap-6">
-                <div>
-                    <div class="flex items-center gap-x-3">
-                        <flux:icon name="banknotes" variant="mini"/>
-                        <flux:heading level="3">Adaptive Pricing</flux:heading>
-                    </div>
-
-                    <flux:text class="mt-4">
-                        Stop paying for limits you don't hit. Our adaptive pricing model scales bandwidth and
-                        storage costs linearly with your usage. No tiers, no lock-ins.
-                    </flux:text>
-                </div>
-
-                <div class="grow flex items-end">
-                    <flux:button href="#" variant="outline" size="sm" icon-trailing="arrow-right">
-                        Calculate savings
-                    </flux:button>
-                </div>
-            </flux:card>
-        </div>
-    </x-container>
-
-    <x-container class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-        <div>
-            <flux:heading level="2"
-                          class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
-                Fine-grained Access Control
-            </flux:heading>
-
-            <flux:subheading class="mt-8 text-xl max-w-2xl">
-                Managing access shouldn't be a headache. Portyard allows you to create Organization
-                Tokens for your CI/CD pipelines and servers, separate from your personal user account.
-            </flux:subheading>
-
-            <div class="mt-8 space-y-4">
-                <flux:text>
-                    <strong class="text-neutral-900 dark:text-white">Read-Only Tokens:</strong> Perfect for production
-                    servers that only need to pull images.
+                <flux:text class="mt-4">
+                    Your data never leaves Germany. We run on Green Energy bare-metal servers in Frankfurt,
+                    ensuring low latency for your EU customers and full GDPR compliance.
                 </flux:text>
-                <flux:text>
-                    <strong class="text-neutral-900 dark:text-white">Scoped Permissions:</strong> Limit tokens to
-                    specific
-                    repositories or namespaces.
+            </div>
+
+            <div class="p-6 lg:p-8 border-t border-stitched border-b lg:border-b-0 lg:border-r">
+                <div class="flex items-center gap-x-3">
+                    <flux:icon name="clipboard-document-list" variant="mini"/>
+                    <flux:heading level="3">Activity Logging</flux:heading>
+                </div>
+
+                <flux:text class="mt-4">
+                    Every push, pull, and team action is recorded. Get full visibility into what's happening
+                    across your spaces and repositories with detailed activity logs.
+                </flux:text>
+            </div>
+
+            <div class="p-6 lg:p-8 border-t border-stitched">
+                <div class="flex items-center gap-x-3">
+                    <flux:icon name="gift" variant="mini"/>
+                    <flux:heading level="3">Free During Beta</flux:heading>
+                </div>
+
+                <flux:text class="mt-4">
+                    Get started with 5 GB of storage per space at no cost and no credit card required.
+                    Usage-based pricing will be introduced after the beta period ends.
                 </flux:text>
             </div>
         </div>
-
-        <div>
-            <flux:card>
-                <div class="flex items-center justify-between mb-6">
-                    <flux:heading level="3">Access Tokens</flux:heading>
-                    <flux:button size="sm" icon="plus">Create Token</flux:button>
-                </div>
-                <div class="space-y-4">
-                    <div
-                        class="flex items-center justify-between p-3 rounded-lg border border-neutral-200 dark:border-neutral-400">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-green-100 dark:bg-green-900/10 text-green-500 rounded-md">
-                                <flux:icon name="command-line" variant="mini"/>
-                            </div>
-                            <div>
-                                <div class="font-medium text-sm">GitHub Actions CI</div>
-                                <div class="text-xs text-neutral-500">Read & Write • Exp: Never</div>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="size-2 mr-3 rounded-full bg-green-500"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="flex items-center justify-between p-3 rounded-lg border border-neutral-200 dark:border-neutral-400">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-blue-100 dark:bg-blue-900/10 text-blue-500 rounded-md">
-                                <flux:icon name="server" variant="mini"/>
-                            </div>
-                            <div>
-                                <div class="font-medium text-sm">Production Pull</div>
-                                <div class="text-xs text-neutral-500">Read Only • Exp: 30 days</div>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="size-2 mr-3 rounded-full bg-green-500"></div>
-                        </div>
-                    </div>
-                </div>
-            </flux:card>
-        </div>
-
-
     </x-container>
 
-    <x-container class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-        <div>
-            <flux:heading level="2"
-                          class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
-                Seamless Integration
-            </flux:heading>
+    <x-container inset>
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+            <div class="p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-stitched">
+                <flux:heading level="2"
+                              class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
+                    Team & Access Management
+                </flux:heading>
 
-            <flux:subheading class="mt-8 text-xl max-w-2xl">
-                Portyard integrates effortlessly into your existing workflow. Whether you use GitHub Actions, GitLab CI,
-                or custom pipelines, we fit right in.
-            </flux:subheading>
+                <flux:subheading class="mt-8 text-xl max-w-2xl">
+                    Collaborate with your team without compromise. Portyard gives you flexible controls
+                    to manage who can access your spaces and what they can do.
+                </flux:subheading>
+
+                <div class="mt-8 flex flex-col gap-3">
+                    <span class="flex items-center gap-2">
+                        <flux:icon name="check-circle" variant="mini"/>
+                        <flux:text size="lg">Invite team members to spaces</flux:text>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <flux:icon name="check-circle" variant="mini"/>
+                        <flux:text size="lg">Assign Owner, Admin, or Member roles</flux:text>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <flux:icon name="check-circle" variant="mini"/>
+                        <flux:text size="lg">Full activity logging across all actions</flux:text>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <flux:icon name="check-circle" variant="mini"/>
+                        <flux:text size="lg">Access tokens coming soon</flux:text>
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <div class="px-6 lg:px-8 pt-6 lg:pt-8 flex items-center justify-between pb-6">
+                    <flux:heading level="3">Team Members</flux:heading>
+                    <flux:button size="sm" icon="plus">Invite</flux:button>
+                </div>
+
+                <div class="border-b border-stitched"></div>
+
+                <div class="px-6 lg:px-8 py-3 border-b border-stitched flex items-center gap-3">
+                    <div class="size-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs font-medium">AC</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm">Alex Chen</div>
+                    </div>
+                    <flux:badge size="sm" color="indigo">Owner</flux:badge>
+                </div>
+
+                <div class="px-6 lg:px-8 py-3 border-b border-stitched flex items-center gap-3">
+                    <div class="size-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs font-medium">JL</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm">Jordan Lee</div>
+                    </div>
+                    <flux:badge size="sm" color="amber">Admin</flux:badge>
+                </div>
+
+                <div class="px-6 lg:px-8 py-3 border-b border-stitched flex items-center gap-3">
+                    <div class="size-8 rounded-full bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 text-xs font-medium">SR</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm">Sam Rivera</div>
+                    </div>
+                    <flux:badge size="sm">Member</flux:badge>
+                </div>
+
+                <div class="grow bg-diag-lines"></div>
+            </div>
         </div>
+    </x-container>
 
-        <div class="grid grid-cols-2 gap-6">
-            <flux:card class="text-center hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-                <flux:icon name="code-bracket" class="mx-auto mb-4 text-neutral-400"/>
+    <x-container inset>
+        <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr] lg:grid-cols-[2fr_1fr_1fr] border-b border-stitched -mb-px">
+            {{-- Heading: spans left column, 2 rows on lg --}}
+            <div class="p-6 lg:p-8 sm:col-span-3 lg:col-span-1 lg:row-span-2 border-b lg:border-b-0 lg:border-r border-stitched">
+                <flux:heading level="2"
+                              class="text-4xl! font-semibold tracking-tight text-balance sm:text-5xl! max-w-4xl">
+                    Seamless Integration
+                </flux:heading>
+
+                <flux:subheading class="mt-8 text-xl max-w-2xl">
+                    Portyard integrates effortlessly into your existing workflow. Whether you use GitHub Actions, GitLab CI,
+                    or custom pipelines, we fit right in.
+                </flux:subheading>
+            </div>
+
+            {{-- 4 integration items: 2×2 grid on right --}}
+            <div class="p-6 lg:p-8 text-center border-b border-stitched border-r">
+                <flux:icon name="code-bracket" class="mx-auto mb-4 text-zinc-400"/>
                 <flux:heading level="3" size="base">GitHub Actions</flux:heading>
-            </flux:card>
-            <flux:card class="text-center hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-                <flux:icon name="command-line" class="mx-auto mb-4 text-neutral-400"/>
+            </div>
+            <div class="p-6 lg:p-8 text-center border-b border-stitched">
+                <flux:icon name="command-line" class="mx-auto mb-4 text-zinc-400"/>
                 <flux:heading level="3" size="base">GitLab CI</flux:heading>
-            </flux:card>
-            <flux:card class="text-center hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-                <flux:icon name="cube" class="mx-auto mb-4 text-neutral-400"/>
+            </div>
+            <div class="p-6 lg:p-8 text-center border-r border-stitched sm:border-b-0">
+                <flux:icon name="cube" class="mx-auto mb-4 text-zinc-400"/>
                 <flux:heading level="3" size="base">Kubernetes</flux:heading>
-            </flux:card>
-            <flux:card class="text-center hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-                <flux:icon name="globe-alt" class="mx-auto mb-4 text-neutral-400"/>
+            </div>
+            <div class="p-6 lg:p-8 text-center">
+                <flux:icon name="globe-alt" class="mx-auto mb-4 text-zinc-400"/>
                 <flux:heading level="3" size="base">Coolify / Forge</flux:heading>
-            </flux:card>
+            </div>
         </div>
     </x-container>
 </div>

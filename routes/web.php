@@ -49,7 +49,12 @@ Route::name('website.')->group(function () {
     Route::livewire('/home', 'pages::website.home')->name('home');
     Route::livewire('/features', 'pages::website.features')->name('features');
     Route::livewire('/open-source', 'pages::website.oss')->name('oss');
-    Route::livewire('/docs', 'pages::website.docs')->name('docs');
+    Route::prefix('docs')->name('docs.')->group(function () {
+        Route::livewire('/', 'pages::website.docs.overview')->name('overview');
+        Route::livewire('/authentication', 'pages::website.docs.authentication')->name('authentication');
+        Route::livewire('/github-actions', 'pages::website.docs.github-actions')->name('github-actions');
+        Route::livewire('/docker-cli', 'pages::website.docs.docker-cli')->name('docker-cli');
+    });
     Route::livewire('/pricing', 'pages::website.pricing')->name('pricing');
 });
 
@@ -74,15 +79,12 @@ Route::middleware('auth')
             Route::livewire('/profile', 'pages::app.settings.profile')
                 ->name('profile');
 
-            Route::livewire('/password', 'pages::app.settings.password')
-                ->name('password');
+            Route::livewire('/security', 'pages::app.settings.security')
+                ->middleware('password.confirm')
+                ->name('security');
 
             Route::livewire('/appearance', 'pages::app.settings.appearance')
                 ->name('appearance');
-
-            Route::livewire('/two-factor', 'pages::app.settings.two-factor')
-                ->middleware('password.confirm')
-                ->name('two-factor');
         });
 
         Route::prefix('{space}')

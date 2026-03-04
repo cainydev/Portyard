@@ -25,7 +25,7 @@ new class extends Component {
 ?>
 
 <div class="flex flex-col grow">
-    <x-container class="p-0" border-bottom="center">
+    <x-container class="p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
@@ -86,7 +86,8 @@ new class extends Component {
                                         wire:navigate.hover
                                         variant="outline"
                                         size="sm"
-                                        icon-trailing="arrow-right">
+                                        icon-trailing="arrow-right"
+                                        class="[&_svg]:rtl:rotate-180">
                                         {{ __("Manage") }}
                                     </flux:button>
                                 </div>
@@ -104,12 +105,9 @@ new class extends Component {
                 </flux:table.rows>
             </flux:table>
         </div>
-    </x-container>
 
-    @if ($this->repositories->hasPages())
-        <x-container inset class="px-6 lg:px-8" border-bottom="center">
+        @if ($this->repositories->hasPages())
             {{ $this->repositories->links() }}
-        </x-container>
-        <x-container></x-container>
-    @endif
+        @endif
+    </x-container>
 </div>

@@ -31,5 +31,5 @@
 }
 
 @utility border-stitched {
-    @apply border-dashed border-zinc-300 dark:border-zinc-600;
+    @apply border-dashed border-zinc-400 dark:border-zinc-500;
 }

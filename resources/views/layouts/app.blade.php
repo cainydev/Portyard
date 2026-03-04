@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace("_", "-", app()->getLocale()) }}">
     <head>
         <title>{{ isset($title) ? "$title - " . config("app.name") : config("app.name") }}</title>
         @include("partials.head")
@@ -62,10 +62,10 @@
                         <flux:navbar.item :href="route('website.oss')" wire:navigate.hover>
                             Open Source
                         </flux:navbar.item>
-                        <flux:navbar.item :href="route('website.docs')" wire:navigate.hover>Docs</flux:navbar.item>
                         <flux:navbar.item :href="route('website.pricing')" wire:navigate.hover>
                             Pricing
                         </flux:navbar.item>
+                        <flux:navbar.item :href="route('website.docs.overview')" :current="request()->routeIs('website.docs.*')" wire:navigate.hover>Docs</flux:navbar.item>
                     @endif
                 </flux:navbar>
 
@@ -121,7 +121,7 @@
 
                     {{-- Profile Dropdown --}}
                     <flux:dropdown position="top" align="end">
-                        <flux:profile as="button" size="sm" avatar="https://unavatar.io/{{ auth()->user()->email }}" />
+                        <flux:profile :chevron="false" avatar="https://unavatar.io/{{ auth()->user()->email }}" />
 
                         <flux:menu>
                             {{-- Mobile Only: Integrated Space Section --}}
@@ -143,7 +143,7 @@
 
                             {{-- Standard Profile Menu Items --}}
                             <flux:menu.item :href="route('app.user-settings.profile')" icon="cog" wire:navigate.hover>
-                                {{ __("Settings") }}
+                                {{ __("Profile") }}
                             </flux:menu.item>
 
                             <flux:menu.separator />
@@ -194,8 +194,8 @@
                     <flux:sidebar.item :href="route('root')" wire:navigate>Start</flux:sidebar.item>
                     <flux:sidebar.item :href="route('website.features')" wire:navigate>Features</flux:sidebar.item>
                     <flux:sidebar.item :href="route('website.oss')" wire:navigate>Open Source</flux:sidebar.item>
-                    <flux:sidebar.item :href="route('website.docs')" wire:navigate>Docs</flux:sidebar.item>
                     <flux:sidebar.item :href="route('website.pricing')" wire:navigate>Pricing</flux:sidebar.item>
+                    <flux:sidebar.item :href="route('website.docs.overview')" wire:navigate>Docs</flux:sidebar.item>
                 @endif
             </flux:sidebar.nav>
 
@@ -254,8 +254,10 @@
                 </div>
 
                 <flux:text size="sm">
-                    &copy; {{ \Carbon\Carbon::now()->year }} {{ config("app.name") ?? "Portyard" }}. All rights
-                    reserved.
+                    <bdi>
+                        &copy; {{ \Carbon\Carbon::now()->year }} {{ config("app.name") ?? "Portyard" }}. All rights
+                        reserved.
+                    </bdi>
                 </flux:text>
             </x-container>
         </flux:footer>

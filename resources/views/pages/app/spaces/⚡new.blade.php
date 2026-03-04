@@ -1,9 +1,65 @@
 <?php
 
+use App\Models\Space;
+use App\Enums\Roles;
+use App\Rules\ValidUsername;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Validate;
 
 new class extends Component {
-    //
+    public string $name = '';
+    public string $namespace = '';
+    public string $description = '';
+
+    protected function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'namespace' => ['required', 'string', 'max:39', 'unique:spaces,namespace', new ValidUsername],
+            'description' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    public function updatedName($value): void
+    {
+        $this->namespace = Str::slug($value);
+    }
+
+    public function create(): void
+    {
+        $this->validate();
+
+        DB::beginTransaction();
+
+        try {
+            $space = Space::create([
+                'name' => $this->name,
+                'namespace' => $this->namespace,
+                'description' => $this->description,
+            ]);
+
+            $space->users()->attach(auth()->user(), ['role' => Roles::Owner->value]);
+
+            DB::commit();
+
+            auth()->user()->switchSpace($space);
+
+            \Flux\Flux::toast(__("Space created successfully."), duration: 2000, variant: "success");
+
+            $this->redirect(route('app.space.dashboard', $space), navigate: true);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function render()
+    {
+        return $this->view()
+            ->title(__('New Space'));
+    }
 };
 ?>
 
@@ -19,10 +75,84 @@ new class extends Component {
         <x-app.section-header class="p-6 lg:p-8"
                               :title="__('New Space')"
                               :subtitle="__('Create a new space to organize your repositories and collaborators.')">
-            <flux:button :href="route('app.space.dashboard')" icon="arrow-left" variant="subtle"
+            <flux:button :href="route('app.space.dashboard', auth()->user()->currentSpace())" icon="arrow-left" variant="subtle"
                          wire:navigate.hover>
                 {{ __('Back to Dashboard') }}
             </flux:button>
         </x-app.section-header>
+
+        <form wire:submit="create" class="border-t border-stitched grid lg:grid-cols-2 grow">
+            <!-- LEFT COLUMN: Input & Configuration -->
+            <div class="flex flex-col gap-8">
+
+                {{-- 1. Identity Section --}}
+                <div class="space-y-6 lg:space-y-8 p-6 lg:p-8">
+                    <flux:field>
+                        <flux:label for="name">{{ __('Space Name') }}</flux:label>
+                        <flux:input type="text"
+                                    name="name"
+                                    id="name"
+                                    required
+                                    wire:model.live="name"
+                                    placeholder="My Awesome Team"/>
+                        <flux:description>
+                            {{ __('The display name for your space.') }}
+                        </flux:description>
+                        <flux:error name="name"/>
+                        <flux:error name="namespace"/>
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label for="description" badge="Optional">{{ __('Description') }}</flux:label>
+                        <flux:textarea wire:model="description" name="description"
+                                       placeholder="{{ __('What is this space used for?') }}" rows="3"/>
+                        <flux:error name="description"/>
+                    </flux:field>
+
+                    <flux:button type="submit" variant="primary" class="w-full sm:w-auto">
+                        {{ __('Create Space') }}
+                    </flux:button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-8 border-l border-stitched p-6 lg:p-8">
+                {{-- 1. Visual URI Preview --}}
+                <div class="space-y-4">
+                    <flux:heading size="lg">{{ __('Space Preview') }}</flux:heading>
+                    <flux:callout class="flux items-center">
+                        <x-slot:icon>
+                            <flux:icon.globe-alt class="text-zinc-400 shrink-0"/>
+                        </x-slot:icon>
+                        <flux:callout.heading
+                            class="font-mono text-sm text-zinc-600 dark:text-zinc-400 truncate flex items-center gap-1">
+                            <span>portyard.de</span>
+                            <span>/</span>
+                            <span
+                                class="text-zinc-900 dark:text-zinc-100 font-semibold"
+                                x-text="$wire.namespace.replaceAll(' ', '-') || 'my-team'"></span>
+                        </flux:callout.heading>
+                    </flux:callout>
+                </div>
+
+                {{-- 2. Naming Rules --}}
+                <div class="space-y-4">
+                    <flux:heading size="lg">{{ __('Namespace Requirements') }}</flux:heading>
+                    <flux:callout icon="information-circle" variant="info">
+                        <ul class="text-sm list-disc list-inside space-y-1">
+                            <li>{{ __('Lowercase alphanumeric characters only') }}</li>
+                            <li>{{ __('Can contain hyphens (-)') }}</li>
+                            <li>{{ __('Cannot start or end with a hyphen') }}</li>
+                            <li>{{ __('Maximum 39 characters') }}</li>
+                            <li>{{ __('Must be unique across Portyard') }}</li>
+                        </ul>
+                    </flux:callout>
+                </div>
+
+                {{-- 3. Info Callout --}}
+                <flux:text variant="subtle">
+                    {{ __('Spaces help you group related repositories and manage access for your team. You can invite collaborators and assign roles after creating the space.') }}
+                </flux:text>
+            </div>
+        </form>
     </x-container>
 </div>

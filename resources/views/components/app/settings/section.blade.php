@@ -4,9 +4,9 @@
     @if($title)
         <div class="flex items-center justify-between gap-6 lg:gap-8">
         <span>
-            <flux:heading size="lg">{{ $title }}</flux:heading>
+            <flux:heading size="lg" class="mb-0!">{{ $title }}</flux:heading>
             @if($subtitle)
-                <flux:subheading class="max-w-3xl">{{ $subtitle }}</flux:subheading>
+                <flux:subheading class="max-w-3xl mb-0!">{{ $subtitle }}</flux:subheading>
             @endif
         </span>
 

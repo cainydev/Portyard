@@ -8,12 +8,23 @@ new #[Title('Appearance')] class extends Component {
 };
 ?>
 
-<div class="flex flex-col grow">
-    <x-container>
-        <flux:breadcrumbs>
-            <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
-            <flux:breadcrumbs.item>Settings</flux:breadcrumbs.item>
-            <flux:breadcrumbs.item>Appearance</flux:breadcrumbs.item>
-        </flux:breadcrumbs>
+<x-layouts.user-settings>
+    <x-container inset>
+        <x-app.settings.section
+            :title="__('Appearance Settings')"
+            :subtitle="__('Customize how the application looks for you.')">
+
+            <div class="space-y-4 max-w-md">
+                <flux:radio.group x-data variant="segmented" x-model="$flux.appearance">
+                    <flux:radio value="light" icon="sun">{{ __('Light') }}</flux:radio>
+                    <flux:radio value="dark" icon="moon">{{ __('Dark') }}</flux:radio>
+                    <flux:radio value="system" icon="computer-desktop">{{ __('System') }}</flux:radio>
+                </flux:radio.group>
+
+                <flux:text variant="subtle">
+                    {{ __('Choose between light and dark mode, or let the application follow your system preference.') }}
+                </flux:text>
+            </div>
+        </x-app.settings.section>
     </x-container>
-</div>
+</x-layouts.user-settings>

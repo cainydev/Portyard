@@ -39,7 +39,7 @@
         );
 @endphp
 
-<div>
+<div class="border-y border-stitched -mb-px">
     @if ($paginator->hasPages())
         <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
             {{-- Mobile Pagination --}}
@@ -79,7 +79,7 @@
 
             {{-- Desktop Pagination --}}
             <div class="hidden sm:flex-1 sm:flex sm:items-stretch sm:justify-between">
-                <div class="flex items-center pe-6 lg:pe-8">
+                <div class="flex items-center px-6 lg:px-8">
                     <p class="text-sm text-zinc-700 leading-5 dark:text-zinc-400">
                         <span>{!! __("Showing") !!}</span>
                         <span class="font-medium">{{ $paginator->firstItem() }}</span>
@@ -91,17 +91,17 @@
                     </p>
                 </div>
 
-                <span class="border-l border-stitched bg-diag-lines grow"></span>
+                <span class="border-s border-stitched bg-diag-lines grow"></span>
 
                 <div>
-                    <span class="relative z-0 inline-flex rtl:flex-row-reverse">
+                    <span class="relative z-0 inline-flex">
                         @if ($paginator->onFirstPage())
                             <span
                                 aria-disabled="true"
                                 aria-label="{{ __("pagination.previous") }}"
                                 class="{{ $desktopClasses(type: "icon", disabled: true, isFirst: true) }}"
                                 aria-hidden="true">
-                                <flux:icon.chevron-left class="size-5" />
+                                <flux:icon.chevron-left class="size-5 rtl:rotate-180" />
                             </span>
                         @else
                             <button
@@ -111,7 +111,7 @@
                                 dusk="previousPage{{ $paginator->getPageName() == "page" ? "" : "." . $paginator->getPageName() }}.after"
                                 class="{{ $desktopClasses(type: "icon", isFirst: true) }}"
                                 aria-label="{{ __("pagination.previous") }}">
-                                <flux:icon.chevron-left class="size-5" />
+                                <flux:icon.chevron-left class="size-5 rtl:rotate-180" />
                             </button>
                         @endif
 
@@ -156,7 +156,7 @@
                                 dusk="nextPage{{ $paginator->getPageName() == "page" ? "" : "." . $paginator->getPageName() }}.after"
                                 class="{{ $desktopClasses(type: "icon", isLast: true) }}"
                                 aria-label="{{ __("pagination.next") }}">
-                                <flux:icon.chevron-right class="size-5" />
+                                <flux:icon.chevron-right class="size-5 rtl:rotate-180" />
                             </button>
                         @else
                             <span
@@ -164,11 +164,13 @@
                                 aria-label="{{ __("pagination.next") }}"
                                 class="{{ $desktopClasses(type: "icon", disabled: true, isLast: true) }}"
                                 aria-hidden="true">
-                                <flux:icon.chevron-right class="size-5" />
+                                <flux:icon.chevron-right class="size-5 rtl:rotate-180" />
                             </span>
                         @endif
                     </span>
                 </div>
+
+                <span class="w-6 lg:w-8 bg-diag-lines"></span>
             </div>
         </nav>
     @endif
