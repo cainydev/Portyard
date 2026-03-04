@@ -32,6 +32,7 @@ return [
     ],
 
     'umami' => [
+        'domain' => env('UMAMI_DOMAIN'),
         'website_id' => env('UMAMI_WEBSITE_ID'),
     ],
 

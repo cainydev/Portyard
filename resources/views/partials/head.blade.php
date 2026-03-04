@@ -13,5 +13,5 @@
 @fluxAppearance
 
 @production
-    <script defer src="https://analytics.portyard.de/script.js" data-website-id="{{ config('services.umami.website_id') }}"></script>
+    <script defer src="https://{{ config('services.umami.domain') }}/script.js" data-website-id="{{ config('services.umami.website_id') }}"></script>
 @endproduction
