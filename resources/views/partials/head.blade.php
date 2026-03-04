@@ -11,3 +11,7 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+
+@production
+    <script defer src="https://analytics.portyard.de/script.js" data-website-id="{{ config('services.umami.website_id') }}"></script>
+@endproduction
