@@ -8,8 +8,6 @@ new #[Layout('layouts.auth')] class extends Component {
 };
 ?>
 
-@section('alpine', 'twoFactorAuth')
-
 <x-slot:header>
     <div class="mt-auto flex items-center gap-8">
         <div>
@@ -49,6 +47,12 @@ new #[Layout('layouts.auth')] class extends Component {
                             class="mx-auto"
                         />
                     </div>
+
+                    @error('code')
+                        <flux:text color="red">
+                            {{ $message }}
+                        </flux:text>
+                    @enderror
                 </div>
 
                 <div x-show="showRecoveryInput" x-cloak>
@@ -91,10 +95,6 @@ new #[Layout('layouts.auth')] class extends Component {
         </form>
     </div>
 </div>
-
-<x-slot:footer>
-    <div class="flex flex-col gap-4"></div>
-</x-slot:footer>
 
 <script>
     Alpine.data('twoFactorAuth', () => ({

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 use function abort;
 
@@ -19,6 +20,12 @@ use function abort;
 class Space extends Model
 {
     use HasUuids;
+
+    /** 5 GB storage limit per space during beta. */
+    public const int BETA_STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024;
+
+    /** Maximum number of spaces a user can own during beta. */
+    public const int BETA_MAX_SPACES_PER_USER = 3;
 
     protected $guarded = [];
 
@@ -92,5 +99,27 @@ class Space extends Model
     public function repositories(): HasMany
     {
         return $this->hasMany(Repository::class);
+    }
+
+    public function isOverQuota(): bool
+    {
+        return $this->storage_used_bytes >= self::BETA_STORAGE_LIMIT_BYTES;
+    }
+
+    public function storageUsedPercent(): float
+    {
+        return min(100, ($this->storage_used_bytes / self::BETA_STORAGE_LIMIT_BYTES) * 100);
+    }
+
+    public function recalculateStorage(): void
+    {
+        $computed = (int) DB::table('repositories')
+            ->join('tags', 'tags.repository_id', '=', 'repositories.id')
+            ->join('manifests', 'manifests.id', '=', 'tags.manifest_id')
+            ->join('image_layers', 'image_layers.manifest_id', '=', 'manifests.id')
+            ->where('repositories.space_id', $this->id)
+            ->sum('image_layers.size_bytes');
+
+        $this->update(['storage_used_bytes' => $computed]);
     }
 }

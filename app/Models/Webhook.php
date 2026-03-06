@@ -17,9 +17,12 @@ class Webhook extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'trigger' => WebhookTrigger::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'trigger' => WebhookTrigger::class,
+        ];
+    }
 
     protected $with = ['repository'];
 

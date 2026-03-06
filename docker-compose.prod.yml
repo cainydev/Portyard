@@ -13,12 +13,15 @@ services:
       REGISTRY_AUTH_TOKEN_REALM: 'https://${APP_DOMAIN}/auth/token'
       REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/auth.pem
 
-      # --- Notifications ---
-      REGISTRY_NOTIFICATIONS_ENDPOINTS_0_URL: 'https://${APP_DOMAIN}${DOCKHAND_NOTIFICATIONS_ROUTE}'
-      REGISTRY_NOTIFICATIONS_ENDPOINTS_0_HEADERS_Authorization: 'Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}'
-      REGISTRY_NOTIFICATIONS_ENDPOINTS_0_TIMEOUT: 500ms
-      REGISTRY_NOTIFICATIONS_ENDPOINTS_0_THRESHOLD: 5
-      REGISTRY_NOTIFICATIONS_ENDPOINTS_0_BACKOFF: 1s
+      # --- Notifications (single YAML block — individual _0_ env vars don't support headers) ---
+      REGISTRY_NOTIFICATIONS_ENDPOINTS: >-
+        - name: portyard
+          url: https://${APP_DOMAIN}${DOCKHAND_NOTIFICATIONS_ROUTE}
+          headers:
+            Authorization: ["Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}"]
+          timeout: 500ms
+          threshold: 5
+          backoff: 1s
 
       REGISTRY_HTTP_SECRET: '${APP_KEY}'
 

@@ -20,10 +20,12 @@ class ImageLayer extends Model
         'is_empty_layer',
     ];
 
-    protected $casts = [
-        'created_on' => 'datetime',
-        'is_empty_layer' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_empty_layer' => 'boolean',
+        ];
+    }
 
     public function manifest(): BelongsTo
     {

@@ -14,7 +14,9 @@ new class extends Component {
     #[Computed]
     public function repositories(): LengthAwarePaginator
     {
-        return $this->currentSpace->repositories()->paginate(10);
+        return $this->currentSpace->repositories()
+            ->withMax('tags', 'last_pushed')
+            ->paginate(10);
     }
 
     public function render()
@@ -76,7 +78,11 @@ new class extends Component {
                             </flux:table.cell>
                             <flux:table.cell class="border-stitched">
                                 <div class="flex items-center gap-2 h-full">
-                                    <flux:text variant="subtle">{{ __("No recent pushes") }}</flux:text>
+                                    <flux:text variant="subtle">
+                                        {{ $repo->tags_max_last_pushed
+                                            ? \Carbon\Carbon::parse($repo->tags_max_last_pushed)->diffForHumans()
+                                            : __("No recent pushes") }}
+                                    </flux:text>
                                 </div>
                             </flux:table.cell>
                             <flux:table.cell class="border-stitched w-px last:pe-6 lg:last:pe-8">

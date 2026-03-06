@@ -4,6 +4,7 @@ use App\Models\Repository;
 use App\Models\Space;
 use App\Rules\ValidRepositoryName;
 use App\Services\NamingService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
@@ -48,16 +49,15 @@ new class extends Component {
     public function create(): void
     {
         $this->validate();
+        $this->authorize('createRepository', $this->space);
 
-        DB::beginTransaction();
-
-        $repository = $this->space->repositories()->create([
-            'name' => $this->name,
-            'description' => $this->description,
-            'public' => $this->visibility === 'public',
-        ]);
-
-        DB::commit();
+        $repository = DB::transaction(function () {
+            return $this->space->repositories()->create([
+                'name' => $this->name,
+                'description' => $this->description,
+                'public' => $this->visibility === 'public',
+            ]);
+        });
 
         $this->redirect(route('app.space.repositories.overview', [$this->space, $repository]), navigate: true);
     }
@@ -166,7 +166,7 @@ new class extends Component {
                         </x-slot:icon>
                         <flux:callout.heading
                             class="font-mono text-sm text-zinc-600 dark:text-zinc-400 truncate flex items-center gap-1">
-                            <span>portyard.de</span>
+                            <span>{{ config('app.domain') }}</span>
                             <span>/</span>
                             <span
                                 class="text-zinc-900 dark:text-zinc-100 font-semibold">{{ $this->space->namespace }}</span>
@@ -188,13 +188,13 @@ new class extends Component {
                     <x-terminal class="shadow-sm">
                         <x-terminal-command>
                             <x-slot:comment>1. Login to the registry</x-slot:comment>
-                            <x-slot:command>docker login portyard.de</x-slot:command>
+                            <x-slot:command>docker login {{ config('app.domain') }}</x-slot:command>
                         </x-terminal-command>
 
                         <x-terminal-command>
                             <x-slot:comment>2. Tag your local image</x-slot:comment>
                             <x-slot:command>
-                                docker tag image:latest <span class="break-all">portyard.de/{{$this->space->namespace }}/<span
+                                docker tag image:latest <span class="break-all">{{ config('app.domain') }}/{{$this->space->namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>
@@ -202,7 +202,7 @@ new class extends Component {
                         <x-terminal-command>
                             <x-slot:comment>3. Push the image</x-slot:comment>
                             <x-slot:command>
-                                docker push <span class="break-all">portyard.de/{{ $this->space->namespace }}/<span
+                                docker push <span class="break-all">{{ config('app.domain') }}/{{ $this->space->namespace }}/<span
                                         x-text="$wire.name.length ? $wire.name : 'my-app'"></span>:latest</span>
                             </x-slot:command>
                         </x-terminal-command>

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\Roles;
+use App\Events\Repository\RepositoryCreated;
+use App\Events\Repository\RepositoryDeleted;
+use App\Events\Repository\RepositoryUpdated;
 use App\Policies\RepositoryPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[UsePolicy(RepositoryPolicy::class)]
@@ -22,6 +23,27 @@ class Repository extends Model
     protected $guarded = [];
 
     protected $with = ['space'];
+
+    protected static function booted(): void
+    {
+        static::created(function (Repository $repository) {
+            RepositoryCreated::dispatch($repository, auth()->user());
+        });
+
+        static::updated(function (Repository $repository) {
+            if ($repository->wasChanged(['name', 'public'])) {
+                RepositoryUpdated::dispatch($repository, auth()->user());
+            }
+        });
+
+        static::deleting(function (Repository $repository) {
+            $repository->tags->each->delete();
+        });
+
+        static::deleted(function (Repository $repository) {
+            RepositoryDeleted::dispatch($repository, auth()->user());
+        });
+    }
 
     public static function fromPath(string $path): self
     {
@@ -40,54 +62,9 @@ class Repository extends Model
             ->firstOrFail();
     }
 
-    public function owners(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-            ->using(Member::class)
-            ->withPivotValue('role', Roles::Owner)
-            ->withTimestamps();
-    }
-
     public function space(): BelongsTo
     {
         return $this->belongsTo(Space::class);
-    }
-
-    public function members(): HasMany
-    {
-        return $this->hasMany(Member::class);
-    }
-
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-            ->using(Member::class)
-            ->withPivot(['role'])
-            ->withTimestamps();
-    }
-
-    public function maintainers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-            ->using(Member::class)
-            ->withPivotValue('role', Roles::Maintainer)
-            ->withTimestamps();
-    }
-
-    public function developers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-            ->using(Member::class)
-            ->withPivotValue('role', Roles::Developer)
-            ->withTimestamps();
-    }
-
-    public function viewers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-            ->using(Member::class)
-            ->withPivotValue('role', Roles::Viewer)
-            ->withTimestamps();
     }
 
     public function tags(): HasMany

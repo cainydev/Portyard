@@ -65,6 +65,10 @@ new class extends Component {
         </x-app.section-header>
     </x-container>
 
+    <x-container class="px-6 lg:px-8">
+        <x-app.storage-bar :space="$space" />
+    </x-container>
+
     <x-container class="p-6 lg:p-8 flex flex-col gap-4">
         <flux:heading size="lg">Recent activity</flux:heading>
         <livewire:app.activity-log
@@ -81,6 +85,4 @@ new class extends Component {
                                    \App\Enums\Action::MemberAccepted,
                                ]" />
     </x-container>
-
-    {{ $slot }}
 </div>

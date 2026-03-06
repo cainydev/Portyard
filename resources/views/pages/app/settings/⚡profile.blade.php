@@ -1,6 +1,9 @@
 <?php
 
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Enums\Roles;
+use App\Models\Repository;
+use App\Models\Space;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -27,6 +30,31 @@ new #[Title("Your Profile")] class extends Component {
     public function deleteAccount(): void
     {
         $user = auth()->user();
+
+        $user->spaces()->each(function (Space $space) use ($user) {
+            $owners = $space->owners()->get();
+
+            if ($owners->count() === 1 && $owners->first()->is($user)) {
+                $nextMember = $space->users()
+                    ->where('user_id', '!=', $user->id)
+                    ->orderByRaw("CASE role WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 ELSE 4 END", [
+                        Roles::Maintainer->value,
+                        Roles::Developer->value,
+                        Roles::Viewer->value,
+                    ])
+                    ->first();
+
+                if ($nextMember) {
+                    $space->users()->updateExistingPivot($nextMember->id, ['role' => Roles::Owner->value]);
+                } else {
+                    $space->repositories->each(function (Repository $repo) {
+                        $repo->tags->each->delete();
+                        $repo->delete();
+                    });
+                    $space->delete();
+                }
+            }
+        });
 
         auth()->logout();
 

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Cainy\Dockhand\Facades\Dockhand;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 
 class Tag extends Model
 {
@@ -13,14 +15,39 @@ class Tag extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'last_pushed' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'last_pushed' => 'datetime',
+        ];
+    }
 
     protected static function booted(): void
     {
         static::creating(function (Tag $model) {
             $model->last_pushed = now();
+        });
+
+        static::deleting(function (Tag $tag) {
+            $tag->loadMissing(['repository.space', 'manifest']);
+
+            if (! $tag->manifest) {
+                return;
+            }
+
+            $otherTagsExist = Tag::where('manifest_id', $tag->manifest_id)
+                ->where('id', '!=', $tag->id)
+                ->exists();
+
+            if (! $otherTagsExist) {
+                try {
+                    Dockhand::deleteManifest($tag->repository->path, $tag->manifest->digest);
+                } catch (\Exception $e) {
+                    Log::error("Failed to delete manifest from registry: {$e->getMessage()}");
+                }
+
+                $tag->manifest->delete();
+            }
         });
     }
 

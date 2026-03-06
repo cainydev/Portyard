@@ -22,3 +22,7 @@ User::first()->getMorphClass()
 Illuminate\134Database\134Eloquent\134Relations\134Relation::getMorphedModel("user");
 Illuminate\134Database\134Eloquent\134Relations\134Relation::getMorphedModel("App\134Models\134User");
 User::first()->getMorphClass()
+User::first()->username
+User::first()->name
+User::first()->namespace
+User::first()

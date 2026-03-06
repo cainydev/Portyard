@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae96bfa6288c5b40b4cf50b0c03b9b23",
+    "content-hash": "23e6f13f2af5096688f065751970f4fa",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -123,16 +123,22 @@
         },
         {
             "name": "cainy/laravel-dockhand",
-            "version": "v0.1.0",
+            "version": "v0.3.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/cainydev/laravel-dockhand",
-                "reference": "8c842682406d99e7d71a508808ef99a0c9e13d8d"
+                "url": "https://github.com/cainydev/laravel-dockhand.git",
+                "reference": "cd50bbf3ab92a0841ba06a046b5ffd4fc13059c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cainydev/laravel-dockhand/zipball/cd50bbf3ab92a0841ba06a046b5ffd4fc13059c0",
+                "reference": "cd50bbf3ab92a0841ba06a046b5ffd4fc13059c0",
+                "shasum": ""
             },
             "require": {
                 "christian-riesen/base32": "^1.6",
                 "ext-openssl": "*",
-                "illuminate/contracts": "^10.0||^11.0||^12.0",
+                "illuminate/contracts": "^10.0||^11.0||^12.0||^13.0",
                 "laravel/forge-sdk": "^3.21",
                 "lcobucci/clock": "^3.3",
                 "lcobucci/jwt": "^5.5",
@@ -142,25 +148,24 @@
             "require-dev": {
                 "larastan/larastan": "^2.9||^3.0",
                 "laravel/pint": "^1.14",
-                "nunomaduro/collision": "^8.1.1||^7.10.0",
-                "orchestra/testbench": "^10.0.0||^9.0.0||^8.22.0",
-                "pestphp/pest": "^3.0",
-                "pestphp/pest-plugin-arch": "^3.0",
-                "pestphp/pest-plugin-laravel": "^3.0",
+                "nunomaduro/collision": "^7.10.0||^8.1.1",
+                "orchestra/testbench": "^8.22.0||^9.0.0||^10.0.0||^11.0",
+                "pestphp/pest": "^3.0||^4.0",
+                "pestphp/pest-plugin-arch": "^3.0||^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0||^4.0",
                 "phpstan/extension-installer": "^1.3||^2.0",
                 "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
-                "phpstan/phpstan-phpunit": "^1.3||^2.0",
-                "spatie/laravel-ray": "^1.35"
+                "phpstan/phpstan-phpunit": "^1.3||^2.0"
             },
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "Cainy\\Dockhand\\DockhandServiceProvider"
-                    ],
                     "aliases": {
                         "Dockhand": "Cainy\\Dockhand\\Facades\\Dockhand"
-                    }
+                    },
+                    "providers": [
+                        "Cainy\\Dockhand\\DockhandServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -168,43 +173,7 @@
                     "Cainy\\Dockhand\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Cainy\\Dockhand\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "@composer run prepare"
-                ],
-                "clear": [
-                    "@php vendor/bin/testbench package:purge-laravel-dockhand --ansi"
-                ],
-                "prepare": [
-                    "@php vendor/bin/testbench package:discover --ansi"
-                ],
-                "build": [
-                    "@composer run prepare",
-                    "@php vendor/bin/testbench workbench:build --ansi"
-                ],
-                "start": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "@composer run build",
-                    "@php vendor/bin/testbench serve"
-                ],
-                "analyse": [
-                    "vendor/bin/phpstan analyse"
-                ],
-                "test": [
-                    "vendor/bin/pest"
-                ],
-                "test-coverage": [
-                    "vendor/bin/pest --coverage"
-                ],
-                "format": [
-                    "vendor/bin/pint"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -225,7 +194,17 @@
                 "oci",
                 "registry"
             ],
-            "time": "2025-07-12T10:50:52+00:00"
+            "support": {
+                "issues": "https://github.com/cainydev/laravel-dockhand/issues",
+                "source": "https://github.com/cainydev/laravel-dockhand/tree/v0.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/John Wagner",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-06T16:19:34+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2163,16 +2142,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.0",
+            "version": "2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "4efa10c1e56488e658d10adf7b7b7dcd19940bfb"
+                "reference": "84b1ca48347efdbe775426f108622a42735a6579"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/4efa10c1e56488e658d10adf7b7b7dcd19940bfb",
-                "reference": "4efa10c1e56488e658d10adf7b7b7dcd19940bfb",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/84b1ca48347efdbe775426f108622a42735a6579",
+                "reference": "84b1ca48347efdbe775426f108622a42735a6579",
                 "shasum": ""
             },
             "require": {
@@ -2197,9 +2176,9 @@
                 "phpstan/phpstan": "^1.8.2",
                 "phpunit/phpunit": "^9.5.21 || ^10.5.9 || ^11.0.0",
                 "scrutinizer/ocular": "^1.8.1",
-                "symfony/finder": "^5.3 | ^6.0 | ^7.0",
-                "symfony/process": "^5.4 | ^6.0 | ^7.0",
-                "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0",
+                "symfony/finder": "^5.3 | ^6.0 | ^7.0 || ^8.0",
+                "symfony/process": "^5.4 | ^6.0 | ^7.0 || ^8.0",
+                "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0 || ^8.0",
                 "unleashedtech/php-coding-standard": "^3.1.1",
                 "vimeo/psalm": "^4.24.0 || ^5.0.0 || ^6.0.0"
             },
@@ -2266,7 +2245,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-26T21:48:24+00:00"
+            "time": "2026-03-05T21:37:03+00:00"
         },
         {
             "name": "league/config",
@@ -7556,16 +7535,16 @@
         },
         {
             "name": "barryvdh/reflection-docblock",
-            "version": "v2.4.0",
+            "version": "v2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/ReflectionDocBlock.git",
-                "reference": "d103774cbe7e94ddee7e4870f97f727b43fe7201"
+                "reference": "4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/d103774cbe7e94ddee7e4870f97f727b43fe7201",
-                "reference": "d103774cbe7e94ddee7e4870f97f727b43fe7201",
+                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b",
+                "reference": "4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b",
                 "shasum": ""
             },
             "require": {
@@ -7602,9 +7581,9 @@
                 }
             ],
             "support": {
-                "source": "https://github.com/barryvdh/ReflectionDocBlock/tree/v2.4.0"
+                "source": "https://github.com/barryvdh/ReflectionDocBlock/tree/v2.4.1"
             },
-            "time": "2025-07-17T06:07:30+00:00"
+            "time": "2026-03-05T20:09:01+00:00"
         },
         {
             "name": "composer/class-map-generator",
@@ -8147,16 +8126,16 @@
         },
         {
             "name": "laravel/roster",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/roster.git",
-                "reference": "56904a78f4d7360c1c490ced7deeebf9aecb8c0e"
+                "reference": "5089de7615f72f78e831590ff9d0435fed0102bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/roster/zipball/56904a78f4d7360c1c490ced7deeebf9aecb8c0e",
-                "reference": "56904a78f4d7360c1c490ced7deeebf9aecb8c0e",
+                "url": "https://api.github.com/repos/laravel/roster/zipball/5089de7615f72f78e831590ff9d0435fed0102bb",
+                "reference": "5089de7615f72f78e831590ff9d0435fed0102bb",
                 "shasum": ""
             },
             "require": {
@@ -8204,7 +8183,7 @@
                 "issues": "https://github.com/laravel/roster/issues",
                 "source": "https://github.com/laravel/roster"
             },
-            "time": "2026-02-17T17:33:35+00:00"
+            "time": "2026-03-05T07:58:43+00:00"
         },
         {
             "name": "laravel/sail",
@@ -10249,9 +10228,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "cainy/laravel-dockhand": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -22,10 +22,13 @@ class ManifestListEntry extends Model
         'platform_features',
     ];
 
-    protected $casts = [
-        'platform_os_features' => 'array',
-        'platform_features' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'platform_os_features' => 'array',
+            'platform_features' => 'array',
+        ];
+    }
 
     public function listManifest(): BelongsTo
     {

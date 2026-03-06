@@ -10,10 +10,6 @@
     "flux-pro": {
       "type": "composer",
       "url": "https://composer.fluxui.dev"
-    },
-    "0": {
-      "type": "git",
-      "url": "https://github.com/cainydev/laravel-dockhand"
     }
   },
   "license": "MIT",
@@ -21,7 +17,7 @@
     "php": "^8.5",
     "ext-openssl": "*",
     "ext-pdo": "*",
-    "cainy/laravel-dockhand": "@dev",
+    "cainy/laravel-dockhand": "^0.3",
     "christian-riesen/base32": "^1.6",
     "laravel/fortify": "^1.32",
     "laravel/framework": "^12.0",

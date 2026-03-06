@@ -20,6 +20,36 @@ class Manifest extends Model
 {
     use HasFactory, HasUuids;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Manifest $manifest) {
+            $tag = $manifest->tags()->with('repository.space')->first();
+            $space = $tag?->repository?->space;
+
+            if (! $space) {
+                return;
+            }
+
+            if ($manifest->isImageManifest()) {
+                $bytes = (int) $manifest->imageLayers()->sum('size_bytes');
+
+                if ($bytes > 0) {
+                    $space->decrement('storage_used_bytes', $bytes);
+                }
+            } elseif ($manifest->isManifestList()) {
+                $childManifestIds = $manifest->childManifestEntries()->pluck('child_manifest_id');
+
+                $bytes = (int) ImageLayer::whereIn('manifest_id', $childManifestIds)->sum('size_bytes');
+
+                if ($bytes > 0) {
+                    $space->decrement('storage_used_bytes', $bytes);
+                }
+
+                Manifest::whereIn('id', $childManifestIds)->delete();
+            }
+        });
+    }
+
     protected $fillable = [
         'digest',
         'media_type',
@@ -27,10 +57,13 @@ class Manifest extends Model
         'content',
     ];
 
-    protected $casts = [
-        'content' => 'array',
-        'media_type' => MediaType::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'content' => 'array',
+            'media_type' => MediaType::class,
+        ];
+    }
 
     /**
      * Create a new manifest from a resource.
@@ -51,7 +84,7 @@ class Manifest extends Model
 
         if ($resource instanceof ManifestList) {
             foreach ($resource->manifests as $manifestListEntry) {
-                $childManifest = Dockhand::getManifestFromManifestListEntry($manifestListEntry);
+                $childManifest = Dockhand::getManifest($manifestListEntry->repository, $manifestListEntry->digest);
 
                 if ($childManifest->isManifestList()) {
                     throw new Exception('Manifest list inside manifest list is not supported');

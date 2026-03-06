@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AcceptInvitationController;
+use App\Http\Controllers\DeclineInvitationController;
 use App\Http\Controllers\TokenController;
 use App\Http\Middleware\AuthenticateAccount;
 use App\Http\Middleware\EnsureSpaceAccess;
@@ -21,8 +23,8 @@ if (! app()->isProduction()) {
 
         $token = $token
             ->relatedTo(User::first()->email)
-            ->issuedBy(config('dockhand.authority_name'))
-            ->permittedFor(config('dockhand.registry_name'));
+            ->issuedBy(config('dockhand.connections.default.auth.authority_name'))
+            ->permittedFor(config('dockhand.connections.default.auth.registry_name'));
 
         return response()->json([
             'token' => $token->toString(),
@@ -127,6 +129,9 @@ Route::middleware('auth')
                     });
             });
     });
+
+Route::get('/invitations/{token}/accept', AcceptInvitationController::class)->name('invitations.accept');
+Route::get('/invitations/{token}/decline', DeclineInvitationController::class)->name('invitations.decline');
 
 Route::get('/status', function (Request $request) {
     return [

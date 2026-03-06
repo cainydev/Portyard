@@ -39,12 +39,12 @@ new class extends Component {
                     <div class="flex items-center flex-wrap gap-2 mt-4">
                         @if ($tag->manifest->isManifestList())
                             @foreach ($tag->manifest->childManifestEntries as $entry)
-                                <flux:button href="#" size="sm">{{ $entry->platform_architecture }}</flux:button>
+                                <flux:badge size="sm">{{ $entry->platform_architecture }}</flux:badge>
                             @endforeach
                         @else
-                            <flux:button href="#" size="sm">
+                            <flux:badge size="sm">
                                 {{ $tag->imageConfig?->architecture ?? __("Unknown") }}
-                            </flux:button>
+                            </flux:badge>
                         @endif
                     </div>
 
@@ -68,12 +68,9 @@ new class extends Component {
                 </div>
             @endforeach
         </div>
-    </x-container>
 
-    @if ($this->tags->hasPages())
-        <x-container inset class="px-6 lg:px-8" border-bottom="center">
+        @if ($this->tags->hasPages())
             {{ $this->tags->links() }}
-        </x-container>
-        <x-container></x-container>
-    @endif
+        @endif
+    </x-container>
 </x-layouts.repository>

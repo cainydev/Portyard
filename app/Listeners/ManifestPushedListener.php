@@ -4,10 +4,13 @@ namespace App\Listeners;
 
 use App\Models\Manifest;
 use App\Models\Repository;
+use App\Models\Space;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\NamingService;
 use Cainy\Dockhand\Events\ManifestPushedEvent;
 use Cainy\Dockhand\Facades\Dockhand;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -36,9 +39,23 @@ class ManifestPushedListener
             return;
         }
 
-        $user = User::where('email', $event->actorName)->firstOrFail();
+        $user = User::where('email', $event->actorName)->first();
 
-        $repo = Repository::fromPath($event->targetRepository);
+        if (! $user) {
+            Log::warning('ManifestPushedListener: Unknown actor', ['actor' => $event->actorName]);
+
+            return;
+        }
+
+        try {
+            $repo = Repository::fromPath($event->targetRepository);
+        } catch (ModelNotFoundException) {
+            $repo = $this->autoCreateRepository($event->targetRepository);
+
+            if (! $repo) {
+                return;
+            }
+        }
 
         Log::info("ManifestPushedListener: Repository resolved (ID: {$repo->id})");
 
@@ -67,6 +84,54 @@ class ManifestPushedListener
                 ]);
                 Log::info("ManifestPushedListener: Tag created '{$event->targetTag}'");
             }
+
+            $bytes = (int) $manifestModel->imageLayers()->sum('size_bytes');
+
+            if ($manifestModel->isManifestList()) {
+                $childManifestIds = $manifestModel->childManifestEntries()->pluck('child_manifest_id');
+                $bytes = (int) \App\Models\ImageLayer::whereIn('manifest_id', $childManifestIds)->sum('size_bytes');
+            }
+
+            if ($bytes > 0) {
+                $repo->space->increment('storage_used_bytes', $bytes);
+                Log::info("ManifestPushedListener: Incremented storage by {$bytes} bytes for space '{$repo->space->namespace}'");
+            }
         });
+    }
+
+    private function autoCreateRepository(string $path): ?Repository
+    {
+        $parts = explode('/', $path, 2);
+
+        if (count($parts) !== 2) {
+            Log::error("ManifestPushedListener: Invalid repository path '{$path}'");
+
+            return null;
+        }
+
+        [$namespace, $repoName] = $parts;
+
+        if (! NamingService::isValidRepositoryName($repoName)) {
+            Log::error("ManifestPushedListener: Invalid repository name '{$repoName}'");
+
+            return null;
+        }
+
+        $space = Space::where('namespace', $namespace)->first();
+
+        if (! $space) {
+            Log::error("ManifestPushedListener: Space '{$namespace}' not found");
+
+            return null;
+        }
+
+        $repository = $space->repositories()->create([
+            'name' => $repoName,
+            'public' => false,
+        ]);
+
+        Log::info("ManifestPushedListener: Auto-created repository {$path}");
+
+        return $repository;
     }
 }

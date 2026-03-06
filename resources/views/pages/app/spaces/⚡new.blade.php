@@ -29,6 +29,12 @@ new class extends Component {
 
     public function create(): void
     {
+        if (auth()->user()->spaces()->count() >= Space::BETA_MAX_SPACES_PER_USER) {
+            $this->addError('name', __('You have reached the maximum of :count spaces allowed during beta.', ['count' => Space::BETA_MAX_SPACES_PER_USER]));
+
+            return;
+        }
+
         $this->validate();
 
         DB::beginTransaction();
@@ -53,6 +59,12 @@ new class extends Component {
             DB::rollBack();
             throw $e;
         }
+    }
+
+    #[\Livewire\Attributes\Computed]
+    public function atSpaceLimit(): bool
+    {
+        return auth()->user()->spaces()->count() >= Space::BETA_MAX_SPACES_PER_USER;
     }
 
     public function render()
@@ -81,7 +93,17 @@ new class extends Component {
             </flux:button>
         </x-app.section-header>
 
-        <form wire:submit="create" class="border-t border-stitched grid lg:grid-cols-2 grow">
+        @if ($this->atSpaceLimit)
+            <div class="border-t border-stitched bg-amber-50 dark:bg-amber-950/30 p-6 lg:p-8 flex items-center gap-3">
+                <flux:icon.exclamation-triangle class="text-amber-500 shrink-0" />
+                <div>
+                    <flux:heading size="sm">{{ __('Space limit reached') }}</flux:heading>
+                    <flux:text variant="subtle" size="sm">{{ __('You have reached the maximum of :count spaces allowed during the beta. Please delete an existing space before creating a new one.', ['count' => \App\Models\Space::BETA_MAX_SPACES_PER_USER]) }}</flux:text>
+                </div>
+            </div>
+        @endif
+
+        <form wire:submit="create" class="border-t border-stitched grid lg:grid-cols-2 grow {{ $this->atSpaceLimit ? 'opacity-50 pointer-events-none' : '' }}">
             <!-- LEFT COLUMN: Input & Configuration -->
             <div class="flex flex-col gap-8">
 
@@ -125,7 +147,7 @@ new class extends Component {
                         </x-slot:icon>
                         <flux:callout.heading
                             class="font-mono text-sm text-zinc-600 dark:text-zinc-400 truncate flex items-center gap-1">
-                            <span>portyard.de</span>
+                            <span>{{ config('app.domain') }}</span>
                             <span>/</span>
                             <span
                                 class="text-zinc-900 dark:text-zinc-100 font-semibold"

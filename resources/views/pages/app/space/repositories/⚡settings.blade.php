@@ -51,6 +51,7 @@ new class extends Component {
             abort(403);
         }
 
+        $this->repository->tags->each->delete();
         $this->repository->delete();
 
         \Flux\Flux::toast("The repository {$this->repository->path} was successfully deleted.", 'Repository deleted', 2000, 'success');
@@ -153,7 +154,7 @@ new class extends Component {
                             <flux:button variant="danger"
                                          x-bind:disabled="confirmation.trim() !== '{{ $repository->name }}'"
                                          wire:click="deleteRepository">
-                                Delete project
+                                {{ __('Delete repository') }}
                             </flux:button>
                         </div>
                     </div>

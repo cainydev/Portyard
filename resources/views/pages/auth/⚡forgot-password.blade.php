@@ -44,9 +44,3 @@ new #[Layout('layouts.auth')] class extends Component {
         <flux:link :href="route('login')" wire:navigate>{{ __('log in') }}</flux:link>
     </div>
 </div>
-
-<x-slot:footer>
-    <div class="flex flex-col gap-4">
-
-    </div>
-</x-slot:footer>

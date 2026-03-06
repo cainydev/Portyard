@@ -15,8 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $myself = User::factory()->create([
             'name' => 'John',
-            'email' => 'wajo432@gmail.com',
-            'password' => 'password',
+            'email' => 'john@example.com',
         ]);
 
         $collaborators = User::factory()->count(10)->create();

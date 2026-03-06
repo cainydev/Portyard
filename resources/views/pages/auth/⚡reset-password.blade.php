@@ -65,9 +65,3 @@ new #[Layout('layouts.auth')] class extends Component {
         </div>
     </form>
 </div>
-
-<x-slot:footer>
-    <div class="flex flex-col gap-4">
-
-    </div>
-</x-slot:footer>

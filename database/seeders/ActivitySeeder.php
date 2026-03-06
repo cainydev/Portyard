@@ -117,7 +117,7 @@ class ActivitySeeder extends Seeder
             'request_id' => $requestId ?? Str::uuid()->toString(),
             'space_id' => $spaceId,
             'user_id' => $userId,
-            'subject_type' => get_class($subject),
+            'subject_type' => $subject->getMorphClass(),
             'subject_id' => $subject->id,
             'action' => $action,
             'description' => $description,

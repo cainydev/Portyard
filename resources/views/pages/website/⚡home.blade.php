@@ -71,18 +71,18 @@ new #[Layout("layouts::app")] class extends Component {
                 <div class="px-6 lg:px-8 py-4 lg:py-5 space-y-3 text-zinc-600 dark:text-zinc-400">
                     <div>
                         <span class="text-zinc-400">$</span>
-                        <span class="text-zinc-900 dark:text-zinc-100"> docker login portyard.de</span>
+                        <span class="text-zinc-900 dark:text-zinc-100"> docker login {{ config('app.domain') }}</span>
                     </div>
                     <div class="pl-4 text-green-600 dark:text-green-400">Login Succeeded</div>
 
                     <div>
                         <span class="text-zinc-400">$</span>
-                        <span class="text-zinc-900 dark:text-zinc-100"> docker tag busybox:latest portyard.de/john/busybox:latest</span>
+                        <span class="text-zinc-900 dark:text-zinc-100"> docker tag busybox:latest {{ config('app.domain') }}/john/busybox:latest</span>
                     </div>
 
                     <div>
                         <span class="text-zinc-400">$</span>
-                        <span class="text-zinc-900 dark:text-zinc-100"> docker push portyard.de/john/busybox:latest</span>
+                        <span class="text-zinc-900 dark:text-zinc-100"> docker push {{ config('app.domain') }}/john/busybox:latest</span>
                     </div>
                     <div class="pl-4">latest: digest: sha256:5b3e6d…f4a3c2 size: 528</div>
                     <div class="pl-4 text-green-600 dark:text-green-400">Pushed successfully ✓</div>

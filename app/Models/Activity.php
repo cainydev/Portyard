@@ -25,10 +25,13 @@ class Activity extends Model
         'metadata',
     ];
 
-    protected $casts = [
-        'action' => Action::class,
-        'metadata' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'action' => Action::class,
+            'metadata' => 'array',
+        ];
+    }
 
     /**
      * The Space where this activity happened.

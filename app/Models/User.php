@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Roles;
 use App\Events\User\UserUpdated;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 use function str;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, HasUuids, Notifiable, TwoFactorAuthenticatable;
 
@@ -108,7 +109,7 @@ class User extends Authenticatable
     /** @return Attribute<Space> */
     public function personalSpace(): Attribute
     {
-        return Attribute::make(get: fn () => $this->spaces()->where('namespace', $this->username)->first() ?? $this->spaces()->first());
+        return Attribute::make(get: fn () => $this->spaces()->whereNamespace($this->slug)->first() ?? $this->spaces()->first());
     }
 
     public function switchSpace(Space $space): void

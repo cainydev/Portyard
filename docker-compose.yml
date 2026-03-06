@@ -121,16 +121,15 @@ services:
             # Internal Certificate Path (Where we mount it inside the container)
             REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/auth.pem
 
-            # Notifications Endpoint URL
-            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_URL: 'https://${APP_DOMAIN:-portyard.local}${DOCKHAND_NOTIFICATIONS_ROUTE}'
-
-            # Notifications Authorization Header
-            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_HEADERS_Authorization: 'Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}'
-
-            # Notifications Config
-            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_TIMEOUT: 500ms
-            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_THRESHOLD: 5
-            REGISTRY_NOTIFICATIONS_ENDPOINTS_0_BACKOFF: 1s
+            # Notifications (single YAML block — individual _0_ env vars don't support headers)
+            REGISTRY_NOTIFICATIONS_ENDPOINTS: >-
+                - name: portyard
+                  url: http://laravel:80${DOCKHAND_NOTIFICATIONS_ROUTE}
+                  headers:
+                    Authorization: ["Bearer ${DOCKHAND_NOTIFICATIONS_TOKEN}"]
+                  timeout: 500ms
+                  threshold: 5
+                  backoff: 1s
 
             # Reuse APP_KEY for the registry's internal cookie secret
             REGISTRY_HTTP_SECRET: '${APP_KEY}'

@@ -18,6 +18,8 @@ use App\Events\Space\SpaceDeleted;
 use App\Events\Space\SpaceUpdated;
 use App\Events\User\UserUpdated;
 use App\Events\Webhook\WebhookCreated;
+use App\Events\Webhook\WebhookDeleted;
+use App\Events\Webhook\WebhookUpdated;
 use App\Models\Activity;
 use App\Models\Repository;
 use App\Models\User;
@@ -45,26 +47,28 @@ class ActivitySubscriber
             Registered::class => 'handleRegistration',
 
             // 2. Application Events
-            SpaceCreated::class,
-            SpaceUpdated::class,
-            SpaceDeleted::class,
-            MemberInvited::class,
-            MemberAccepted::class,
-            MemberDeclined::class,
-            MemberRoleUpdated::class,
-            MemberRemoved::class,
-            UserUpdated::class,
-            RepositoryCreated::class,
-            RepositoryUpdated::class,
-            RepositoryDeleted::class,
-            RepositoryTransferred::class,
+            SpaceCreated::class => 'handleAppEvent',
+            SpaceUpdated::class => 'handleAppEvent',
+            SpaceDeleted::class => 'handleAppEvent',
+            MemberInvited::class => 'handleAppEvent',
+            MemberAccepted::class => 'handleAppEvent',
+            MemberDeclined::class => 'handleAppEvent',
+            MemberRoleUpdated::class => 'handleAppEvent',
+            MemberRemoved::class => 'handleAppEvent',
+            UserUpdated::class => 'handleAppEvent',
+            RepositoryCreated::class => 'handleAppEvent',
+            RepositoryUpdated::class => 'handleAppEvent',
+            RepositoryDeleted::class => 'handleAppEvent',
+            RepositoryTransferred::class => 'handleAppEvent',
             WebhookCreated::class => 'handleAppEvent',
+            WebhookUpdated::class => 'handleAppEvent',
+            WebhookDeleted::class => 'handleAppEvent',
 
             // 3. Dockhand Registry Events
-            ManifestPushedEvent::class,
-            ManifestPulledEvent::class,
-            ManifestDeletedEvent::class,
-            TagDeletedEvent::class,
+            ManifestPushedEvent::class => 'handleRegistryEvent',
+            ManifestPulledEvent::class => 'handleRegistryEvent',
+            ManifestDeletedEvent::class => 'handleRegistryEvent',
+            TagDeletedEvent::class => 'handleRegistryEvent',
             RepoDeletedEvent::class => 'handleRegistryEvent',
         ];
     }

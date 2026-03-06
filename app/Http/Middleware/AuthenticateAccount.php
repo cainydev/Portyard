@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -32,12 +33,14 @@ class AuthenticateAccount
 
             if ($request->get('account') != $credentials['email']) {
                 Log::error('Account doesn\'t match Basic Auth. Aborting.');
-                abort(400);
+
+                return $this->errorResponse('UNSUPPORTED', 'Account does not match credentials.', 400);
             }
 
             if (! Auth::attempt($credentials)) {
                 Log::error('Authentication failed.');
-                abort(401);
+
+                return $this->errorResponse('UNAUTHORIZED', 'Authentication failed.', 401);
             }
 
             $user = Auth::user();
@@ -48,9 +51,17 @@ class AuthenticateAccount
             ]);
         } else {
             Log::info('No account provided. Aborting.');
-            abort(400);
+
+            return $this->errorResponse('UNSUPPORTED', 'No account provided.', 400);
         }
 
         return $next($request);
+    }
+
+    private function errorResponse(string $code, string $message, int $status): JsonResponse
+    {
+        return response()->json([
+            'errors' => [['code' => $code, 'message' => $message]],
+        ], $status);
     }
 }

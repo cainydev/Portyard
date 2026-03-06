@@ -11,6 +11,7 @@ class NamingService
         'home', 'settings', 'explore', 'notifications', 'auth', 'login', 'logout', 'signup',
         'new', 'repositories', 'dashboard', 'admin', 'api', 'about', 'contact',
         'support', 'help', 'status', 'apps', 'teams', 'orgs', 'pricing', 'legal',
+        'spaces', 'token', 'up',
     ];
 
     /**
