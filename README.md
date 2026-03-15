@@ -2,7 +2,7 @@
 
 ## Portyard Registry
 
-A container image registry management UI built with Laravel and Filament.
+A container image registry management UI built with Laravel.
 
 
 ### Cloud Service: [portyard.de](https://portyard.de)
