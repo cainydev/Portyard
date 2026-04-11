@@ -41,34 +41,7 @@ services:
       - ./registry.yml:/etc/docker/registry/config.yml
       - ./certs/auth.crt:/etc/docker/registry/auth.pem:ro
 
-  umami:
-    image: docker.umami.is/umami-software/umami:postgresql-latest
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
-    depends_on:
-      umami-db:
-        condition: service_healthy
-
-  umami-db:
-    image: postgres:18-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: umami
-      POSTGRES_USER: umami
-      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD}
-    volumes:
-      - umami-db:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U umami" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
 volumes:
   portyard-registry:
-    driver: local
-  umami-db:
     driver: local
