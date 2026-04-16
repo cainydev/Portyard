@@ -29,7 +29,7 @@ new class extends Component {
 
     public function create(): void
     {
-        if (auth()->user()->spaces()->count() >= Space::BETA_MAX_SPACES_PER_USER) {
+        if ($this->atSpaceLimit) {
             $this->addError('name', __('You have reached the maximum of :count spaces allowed during beta.', ['count' => Space::BETA_MAX_SPACES_PER_USER]));
 
             return;
@@ -64,7 +64,10 @@ new class extends Component {
     #[\Livewire\Attributes\Computed]
     public function atSpaceLimit(): bool
     {
-        return auth()->user()->spaces()->count() >= Space::BETA_MAX_SPACES_PER_USER;
+        return auth()->user()
+            ->spaces()
+            ->wherePivot('role', Roles::Owner->value)
+            ->count() >= Space::BETA_MAX_SPACES_PER_USER;
     }
 
     public function render()
