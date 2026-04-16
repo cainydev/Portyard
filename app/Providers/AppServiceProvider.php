@@ -15,7 +15,10 @@ use App\Models\User;
 use App\Models\Webhook;
 use App\Services\CurrentSpaceService;
 use App\Services\NamingService;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Route;
@@ -27,7 +30,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceScheme('https');
+        if ($this->app->isProduction()) {
+            URL::forceScheme('https');
+        }
+
+        RateLimiter::for('docker-auth', function (Request $request) {
+            $key = strtolower((string) $request->query('account', '')).'|'.$request->ip();
+
+            return Limit::perMinute(10)->by($key);
+        });
 
         Route::model('space', Space::class);
 
