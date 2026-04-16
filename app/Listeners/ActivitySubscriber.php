@@ -24,7 +24,6 @@ use App\Models\Activity;
 use App\Models\Repository;
 use App\Models\User;
 use Cainy\Dockhand\Events\ManifestDeletedEvent;
-use Cainy\Dockhand\Events\ManifestPulledEvent;
 use Cainy\Dockhand\Events\ManifestPushedEvent;
 use Cainy\Dockhand\Events\RegistryBaseEvent;
 use Cainy\Dockhand\Events\RegistryEvent;
@@ -64,9 +63,8 @@ class ActivitySubscriber
             WebhookUpdated::class => 'handleAppEvent',
             WebhookDeleted::class => 'handleAppEvent',
 
-            // 3. Dockhand Registry Events
+            // 3. Dockhand Registry Events (pulls intentionally excluded — too noisy for the audit log)
             ManifestPushedEvent::class => 'handleRegistryEvent',
-            ManifestPulledEvent::class => 'handleRegistryEvent',
             ManifestDeletedEvent::class => 'handleRegistryEvent',
             TagDeletedEvent::class => 'handleRegistryEvent',
             RepoDeletedEvent::class => 'handleRegistryEvent',
@@ -142,7 +140,6 @@ class ActivitySubscriber
     {
         $action = match ($event::class) {
             ManifestPushedEvent::class => Action::ManifestPushed,
-            ManifestPulledEvent::class => Action::ManifestPulled,
             ManifestDeletedEvent::class => Action::ManifestDeleted,
             TagDeletedEvent::class => Action::TagDeleted,
             RepoDeletedEvent::class => Action::RepositoryDeleted,
@@ -159,7 +156,7 @@ class ActivitySubscriber
             return;
         }
 
-        $user = $event->actorName ? User::where('name', $event->actorName)->first() : null;
+        $user = $event->actorName ? User::where('email', $event->actorName)->first() : null;
 
         $tag = null;
         $mediaType = null;
