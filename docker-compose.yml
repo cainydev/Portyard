@@ -98,6 +98,15 @@ services:
             retries: 3
             timeout: 5s
 
+    # ---------- Mailpit mail catcher ----------
+    mailpit:
+        container_name: portyard-mailpit
+        image: 'axllent/mailpit:latest'
+        ports:
+            - '${FORWARD_MAILPIT_PORT:-8025}:8025'
+        networks:
+            - sail
+
     # ---------- CNCF Container registry ----------
     registry:
         container_name: portyard-registry

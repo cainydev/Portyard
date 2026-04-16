@@ -18,20 +18,20 @@ class SpaceInvitationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "You've been invited to join {$this->invitation->space->name}",
+            subject: "You're in. {$this->invitation->space->name} wants you on board.",
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.space-invitation',
+            view: 'emails.space-invitation',
             with: [
                 'spaceName' => $this->invitation->space->name,
                 'inviterName' => $this->invitation->inviter?->name ?? 'Someone',
                 'role' => $this->invitation->role->value,
-                'acceptUrl' => route('invitations.accept', $this->invitation->token),
-                'declineUrl' => route('invitations.decline', $this->invitation->token),
+                'acceptUrl' => route('invitations.accept.show', $this->invitation->token),
+                'declineUrl' => route('invitations.decline.show', $this->invitation->token),
             ],
         );
     }
