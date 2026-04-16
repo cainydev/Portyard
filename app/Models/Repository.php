@@ -20,7 +20,13 @@ class Repository extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'space_id',
+        'name',
+        'description',
+        'overview',
+        'public',
+    ];
 
     protected $with = ['space'];
 

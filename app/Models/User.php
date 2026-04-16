@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\Roles;
 use App\Events\User\UserUpdated;
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -30,10 +32,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
-    ];
-
-    protected $with = [
-        'spaces',
     ];
 
     protected static function booted(): void
@@ -117,6 +115,16 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->spaces()->where('spaces.id', $space->id)->exists()) {
             session(['current_space_id' => $space->id]);
         }
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     /**
