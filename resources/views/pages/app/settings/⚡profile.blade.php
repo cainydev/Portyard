@@ -4,12 +4,18 @@ use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Enums\Roles;
 use App\Models\Repository;
 use App\Models\Space;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 new #[Title("Your Profile")] class extends Component {
     public string $name;
     public string $email;
+
+    public string $deletePassword = '';
 
     public function mount(): void
     {
@@ -31,35 +37,42 @@ new #[Title("Your Profile")] class extends Component {
     {
         $user = auth()->user();
 
-        $user->spaces()->each(function (Space $space) use ($user) {
-            $owners = $space->owners()->get();
+        if (! Hash::check($this->deletePassword, $user->password)) {
+            throw ValidationException::withMessages([
+                'deletePassword' => __('The password is incorrect.'),
+            ]);
+        }
 
-            if ($owners->count() === 1 && $owners->first()->is($user)) {
-                $nextMember = $space->users()
-                    ->where('user_id', '!=', $user->id)
-                    ->orderByRaw("CASE role WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 ELSE 4 END", [
-                        Roles::Maintainer->value,
-                        Roles::Developer->value,
-                        Roles::Viewer->value,
-                    ])
-                    ->first();
+        DB::transaction(function () use ($user) {
+            $user->spaces()->each(function (Space $space) use ($user) {
+                $owners = $space->owners()->get();
 
-                if ($nextMember) {
-                    $space->users()->updateExistingPivot($nextMember->id, ['role' => Roles::Owner->value]);
-                } else {
-                    $space->repositories->each(function (Repository $repo) {
-                        $repo->tags->each->delete();
-                        $repo->delete();
-                    });
-                    $space->delete();
+                if ($owners->count() === 1 && $owners->first()->is($user)) {
+                    $nextMember = $space->users()
+                        ->where('user_id', '!=', $user->id)
+                        ->orderByRaw("CASE role WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 ELSE 4 END", [
+                            Roles::Maintainer->value,
+                            Roles::Developer->value,
+                            Roles::Viewer->value,
+                        ])
+                        ->first();
+
+                    if ($nextMember) {
+                        $space->users()->updateExistingPivot($nextMember->id, ['role' => Roles::Owner->value]);
+                    } else {
+                        $space->repositories->each(function (Repository $repo) {
+                            $repo->tags->each->delete();
+                            $repo->delete();
+                        });
+                        $space->delete();
+                    }
                 }
-            }
+            });
+
+            $user->delete();
         });
 
         auth()->logout();
-
-        $user->delete();
-
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
@@ -110,11 +123,17 @@ new #[Title("Your Profile")] class extends Component {
                         <flux:text class="mt-2">
                             {{ __('You are about to permanently delete your account.') }}<br>
                             {{ __('This action cannot be reversed. To confirm, please type your name') }}
-                            <strong>{{ auth()->user()->name }}</strong> {{ __('below:') }}
+                            <strong>{{ auth()->user()->name }}</strong> {{ __('below and enter your password:') }}
                         </flux:text>
                     </div>
 
                     <flux:input x-model="confirmation" :placeholder="auth()->user()->name" />
+
+                    <flux:field>
+                        <flux:label>{{ __('Password') }}</flux:label>
+                        <flux:input type="password" wire:model="deletePassword" autocomplete="current-password" />
+                        <flux:error name="deletePassword" />
+                    </flux:field>
 
                     <div class="flex gap-2">
                         <flux:spacer/>
