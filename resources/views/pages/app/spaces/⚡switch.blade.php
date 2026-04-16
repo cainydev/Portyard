@@ -12,7 +12,7 @@ new class extends Component {
     public function mount(): void
     {
         $targetId = request()->query('target_space_id');
-        $this->intendedUrl = request()->query('intended_url', route('root'));
+        $this->intendedUrl = $this->sanitizeIntendedUrl(request()->query('intended_url'));
 
         $this->targetSpace = Space::findOrFail($targetId);
 
@@ -28,6 +28,33 @@ new class extends Component {
         session(['current_space_id' => $this->targetSpace->id]);
 
         $this->redirect($this->intendedUrl, navigate: true);
+    }
+
+    private function sanitizeIntendedUrl(?string $url): string
+    {
+        $fallback = route('root');
+
+        if (! is_string($url) || $url === '') {
+            return $fallback;
+        }
+
+        $parts = parse_url($url);
+
+        if ($parts === false) {
+            return $fallback;
+        }
+
+        if (isset($parts['host']) && $parts['host'] !== request()->getHost()) {
+            return $fallback;
+        }
+
+        $path = $parts['path'] ?? '/';
+
+        if (! str_starts_with($path, '/')) {
+            return $fallback;
+        }
+
+        return $path.(isset($parts['query']) ? '?'.$parts['query'] : '').(isset($parts['fragment']) ? '#'.$parts['fragment'] : '');
     }
 
     public function cancel(): void
