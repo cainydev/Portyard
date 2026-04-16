@@ -7,14 +7,13 @@ use App\Events\Space\SpaceCreated;
 use App\Events\Space\SpaceDeleted;
 use App\Events\Space\SpaceUpdated;
 use App\Policies\SpacePolicy;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-
-use function abort;
 
 #[UsePolicy(SpacePolicy::class)]
 class Space extends Model
@@ -27,12 +26,17 @@ class Space extends Model
     /** Maximum number of spaces a user can own during beta. */
     public const int BETA_MAX_SPACES_PER_USER = 3;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'namespace',
+        'description',
+        'storage_used_bytes',
+    ];
 
     public static function current(): self
     {
         if (! auth()->check()) {
-            abort(403);
+            throw new AuthenticationException;
         }
 
         return auth()->user()->currentSpace();

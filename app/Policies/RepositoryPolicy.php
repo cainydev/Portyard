@@ -37,21 +37,18 @@ class RepositoryPolicy
     }
 
     /**
-     * Checks if the user has a specific role in the parent space.
+     * Checks if the user has one of the given roles in the parent space.
+     *
+     * @param  array<\App\Enums\Roles|string>  $allowedRoles
      */
     protected function hasSpaceRole(User $user, Repository $repository, array $allowedRoles): bool
     {
-        $membership = $repository->space->users()
+        $allowedValues = array_map(fn ($r) => is_object($r) ? $r->value : $r, $allowedRoles);
+
+        return $repository->space->users()
             ->where('user_id', $user->id)
-            ->first();
-
-        if (! $membership) {
-            return false;
-        }
-
-        $allowedValues = array_map(fn ($r) => $r->value, $allowedRoles);
-
-        return in_array($membership->pivot->role, $allowedValues);
+            ->wherePivotIn('role', $allowedValues)
+            ->exists();
     }
 
     /**
