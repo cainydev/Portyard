@@ -26,28 +26,26 @@ class Manifest extends Model
             $tag = $manifest->tags()->with('repository.space')->first();
             $space = $tag?->repository?->space;
 
-            if (! $space) {
-                return;
-            }
-
-            if ($manifest->isImageManifest()) {
+            if ($manifest->isImageManifest() && $space) {
                 $bytes = (int) $manifest->imageLayers()->sum('size_bytes');
 
                 if ($bytes > 0) {
-                    $space->decrement('storage_used_bytes', $bytes);
+                    self::decrementSpaceStorage($space, $bytes);
                 }
             } elseif ($manifest->isManifestList()) {
                 $childManifestIds = $manifest->childManifestEntries()->pluck('child_manifest_id');
 
-                $bytes = (int) ImageLayer::whereIn('manifest_id', $childManifestIds)->sum('size_bytes');
-
-                if ($bytes > 0) {
-                    $space->decrement('storage_used_bytes', $bytes);
-                }
-
-                Manifest::whereIn('id', $childManifestIds)->delete();
+                // Let each child's own deleting hook handle its storage decrement.
+                // We iterate rather than whereIn->delete() so hooks fire.
+                Manifest::whereIn('id', $childManifestIds)->get()->each->delete();
             }
         });
+    }
+
+    private static function decrementSpaceStorage(\App\Models\Space $space, int $bytes): void
+    {
+        $space->storage_used_bytes = max(0, ((int) $space->storage_used_bytes) - $bytes);
+        $space->save();
     }
 
     protected $fillable = [
@@ -72,57 +70,55 @@ class Manifest extends Model
      */
     public static function createFromResource(ManifestResource $resource): Manifest
     {
-        DB::beginTransaction();
-
-        /* @var Manifest $manifest */
-        $manifest = Manifest::create([
-            'digest' => $resource->digest,
-            'media_type' => $resource->mediaType,
-            'size_bytes' => $resource->getSize(),
-            'content' => $resource->toArray(),
-        ]);
-
-        if ($resource instanceof ManifestList) {
-            foreach ($resource->manifests as $manifestListEntry) {
-                $childManifest = Dockhand::getManifest($manifestListEntry->repository, $manifestListEntry->digest);
-
-                if ($childManifest->isManifestList()) {
-                    throw new Exception('Manifest list inside manifest list is not supported');
-                }
-
-                $childManifestModel = Manifest::createFromResource($childManifest);
-
-                $manifest->childManifestEntries()->create([
-                    'child_manifest_id' => $childManifestModel->id,
-                    'platform_os' => $manifestListEntry->platform->os,
-                    'platform_architecture' => $manifestListEntry->platform->architecture,
-                    'platform_variant' => $manifestListEntry->platform->variant,
-                ]);
-            }
-        } elseif ($resource instanceof ImageManifest) {
-            $config = Dockhand::getImageConfigFromDescriptor($resource->config);
-
-            $manifest->imageConfig()->create([
-                'digest' => $config->digest,
-                'architecture' => $config->platform->architecture,
-                'os' => $config->platform->os,
-                'variant' => $config->platform->variant,
+        return DB::transaction(function () use ($resource) {
+            /* @var Manifest $manifest */
+            $manifest = Manifest::create([
+                'digest' => $resource->digest,
+                'media_type' => $resource->mediaType,
+                'size_bytes' => $resource->getSize(),
+                'content' => $resource->toArray(),
             ]);
 
-            $order = 0;
-            foreach ($resource->layers as $layer) {
-                $manifest->imageLayers()->create([
-                    'digest' => $layer->digest,
-                    'sort_order' => $order++,
-                    'size_bytes' => $layer->size,
-                    'media_type' => $layer->mediaType->toString(),
+            if ($resource instanceof ManifestList) {
+                foreach ($resource->manifests as $manifestListEntry) {
+                    $childManifest = Dockhand::getManifest($manifestListEntry->repository, $manifestListEntry->digest);
+
+                    if ($childManifest->isManifestList()) {
+                        throw new Exception('Manifest list inside manifest list is not supported');
+                    }
+
+                    $childManifestModel = Manifest::createFromResource($childManifest);
+
+                    $manifest->childManifestEntries()->create([
+                        'child_manifest_id' => $childManifestModel->id,
+                        'platform_os' => $manifestListEntry->platform->os,
+                        'platform_architecture' => $manifestListEntry->platform->architecture,
+                        'platform_variant' => $manifestListEntry->platform->variant,
+                    ]);
+                }
+            } elseif ($resource instanceof ImageManifest) {
+                $config = Dockhand::getImageConfigFromDescriptor($resource->config);
+
+                $manifest->imageConfig()->create([
+                    'digest' => $config->digest,
+                    'architecture' => $config->platform->architecture,
+                    'os' => $config->platform->os,
+                    'variant' => $config->platform->variant,
                 ]);
+
+                $order = 0;
+                foreach ($resource->layers as $layer) {
+                    $manifest->imageLayers()->create([
+                        'digest' => $layer->digest,
+                        'sort_order' => $order++,
+                        'size_bytes' => $layer->size,
+                        'media_type' => $layer->mediaType->toString(),
+                    ]);
+                }
             }
-        }
 
-        DB::commit();
-
-        return $manifest;
+            return $manifest;
+        });
     }
 
     /**
