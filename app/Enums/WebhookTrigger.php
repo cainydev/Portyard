@@ -10,12 +10,14 @@ enum WebhookTrigger: string
 
     case TagPushed = 'tag_pushed';
     case TagUpdated = 'tag_updated';
+    case TagDeleted = 'tag_deleted';
 
     public function getReadableName(): string
     {
         return match ($this) {
             self::TagPushed => 'Tag pushed',
             self::TagUpdated => 'Tag updated',
+            self::TagDeleted => 'Tag deleted',
         };
     }
 }

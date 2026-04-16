@@ -2,12 +2,14 @@
 
 namespace App\Listeners;
 
+use App\Enums\WebhookTrigger;
 use App\Models\Manifest;
 use App\Models\Repository;
 use App\Models\Space;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\NamingService;
+use App\Services\WebhookDispatcher;
 use Cainy\Dockhand\Events\ManifestPushedEvent;
 use Cainy\Dockhand\Facades\Dockhand;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -59,30 +61,34 @@ class ManifestPushedListener
 
         Log::info("ManifestPushedListener: Repository resolved (ID: {$repo->id})");
 
-        DB::transaction(function () use ($event, $user, $repo, $manifest) {
+        [$savedTag, $wasUpdate] = DB::transaction(function () use ($event, $user, $repo, $manifest) {
             $manifestModel = Manifest::createFromResource($manifest);
 
-            $tag = Tag::firstWhere([
+            $existing = Tag::firstWhere([
                 'repository_id' => $repo->id,
                 'name' => $event->targetTag,
             ]);
 
-            if ($tag) {
-                $tag->update([
+            if ($existing) {
+                $existing->update([
                     'user_id' => $user->id,
                     'manifest_id' => $manifestModel->id,
                     'last_pushed' => now(),
                 ]);
-                Log::info("ManifestPushedListener: Tag updated '{$tag->name}'");
+                Log::info("ManifestPushedListener: Tag updated '{$existing->name}'");
+                $savedTag = $existing->fresh(['manifest.imageConfig', 'manifest.childManifestEntries']);
+                $wasUpdate = true;
             } else {
-                Tag::create([
+                $savedTag = Tag::create([
                     'repository_id' => $repo->id,
                     'name' => $event->targetTag,
                     'user_id' => $user->id,
                     'manifest_id' => $manifestModel->id,
                     'last_pushed' => now(),
                 ]);
+                $savedTag->load(['manifest.imageConfig', 'manifest.childManifestEntries']);
                 Log::info("ManifestPushedListener: Tag created '{$event->targetTag}'");
+                $wasUpdate = false;
             }
 
             $bytes = (int) $manifestModel->imageLayers()->sum('size_bytes');
@@ -96,7 +102,18 @@ class ManifestPushedListener
                 $repo->space->increment('storage_used_bytes', $bytes);
                 Log::info("ManifestPushedListener: Incremented storage by {$bytes} bytes for space '{$repo->space->namespace}'");
             }
+
+            return [$savedTag, $wasUpdate];
         });
+
+        $trigger = $wasUpdate ? WebhookTrigger::TagUpdated : WebhookTrigger::TagPushed;
+
+        app(WebhookDispatcher::class)->dispatch($repo, $trigger, [
+            'tag' => $savedTag,
+            'tag_name' => $savedTag->name,
+            'manifest' => $savedTag->manifest,
+            'actor' => $user,
+        ]);
     }
 
     private function autoCreateRepository(string $path): ?Repository

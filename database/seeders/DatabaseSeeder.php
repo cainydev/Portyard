@@ -26,13 +26,11 @@ class DatabaseSeeder extends Seeder
         Repository::factory()
             ->count(20)
             ->for($personalSpace)
-            ->has(
-                Tag::factory()
-                    ->count(rand(5, 15))
-                    ->recycle($myself)
-            )
-            ->has(Webhook::factory()->count(rand(0, 2)))
-            ->create();
+            ->create()
+            ->each(function ($repo) use ($myself) {
+                Tag::factory()->count(rand(5, 15))->recycle($myself)->for($repo)->create();
+                Webhook::factory()->count(rand(0, 2))->for($repo)->create();
+            });
 
         $teamSpace = $myself->spaces()
             ->withPivotValue(['role' => Roles::Owner->value])
@@ -44,16 +42,16 @@ class DatabaseSeeder extends Seeder
         $teamSpace->developers()->attach($collaborators->pluck('id'));
         $teamSpace->activities()->oldest()->first()->delete();
 
+        $allMembers = $collaborators->merge([$myself]);
+
         Repository::factory()
             ->count(20)
             ->for($teamSpace)
-            ->has(
-                Tag::factory()
-                    ->count(rand(5, 15))
-                    ->recycle($collaborators->merge([$myself]))
-            )
-            ->has(Webhook::factory()->count(rand(1, 3)))
-            ->create();
+            ->create()
+            ->each(function ($repo) use ($allMembers) {
+                Tag::factory()->count(rand(5, 15))->recycle($allMembers)->for($repo)->create();
+                Webhook::factory()->count(rand(1, 3))->for($repo)->create();
+            });
 
         $smallSpace = $myself->spaces()
             ->withPivotValue(['role' => Roles::Owner->value])
@@ -70,7 +68,7 @@ class DatabaseSeeder extends Seeder
             ->for($smallSpace)
             ->has(
                 Tag::factory()
-                    ->count(3)
+                    ->count(rand(4, 8))
                     ->recycle($collaborators->merge([$myself]))
             )
             ->has(Webhook::factory()->count(rand(1, 3)))
