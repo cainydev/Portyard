@@ -18,7 +18,10 @@ new class extends Component {
     #[Computed]
     public function tags()
     {
-        return $this->repository->tags()->paginate(9);
+        return $this->repository
+            ->tags()
+            ->with(['manifest.imageConfig', 'manifest.childManifestEntries'])
+            ->paginate(9);
     }
 
     public function render()
@@ -43,7 +46,7 @@ new class extends Component {
                             @endforeach
                         @else
                             <flux:badge size="sm">
-                                {{ $tag->imageConfig?->architecture ?? __("Unknown") }}
+                                {{ $tag->manifest?->imageConfig?->architecture ?? __("Unknown") }}
                             </flux:badge>
                         @endif
                     </div>
@@ -67,6 +70,13 @@ new class extends Component {
                     </p>
                 </div>
             @endforeach
+            @php
+                $remainder = $this->tags->count() % 3;
+                $phantoms = $remainder === 0 ? 0 : 3 - $remainder;
+            @endphp
+            @for ($i = 0; $i < $phantoms; $i++)
+                <div class="border-b border-r border-stitched"></div>
+            @endfor
         </div>
 
         @if ($this->tags->hasPages())

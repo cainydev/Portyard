@@ -30,7 +30,7 @@ new class extends Component {
     <x-container class="p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
-                <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->currentSpace->name }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __("Repositories") }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
         </div>

@@ -8,6 +8,7 @@ use App\Mail\SpaceInvitationMail;
 use App\Models\Invitation;
 use App\Models\Repository;
 use App\Models\Space;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
@@ -149,12 +150,14 @@ new class extends Component {
     {
         $this->authorize('delete', $this->space);
 
-        $this->space->repositories->each(function (Repository $repo) {
-            $repo->tags->each->delete();
-            $repo->delete();
-        });
+        DB::transaction(function () {
+            $this->space->repositories->each(function (Repository $repo) {
+                $repo->tags->each->delete();
+                $repo->delete();
+            });
 
-        $this->space->delete();
+            $this->space->delete();
+        });
 
         \Flux\Flux::toast(__('The space was successfully deleted.'), __('Space deleted'), 2000, 'success');
 

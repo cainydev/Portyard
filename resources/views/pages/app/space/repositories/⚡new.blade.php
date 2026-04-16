@@ -24,7 +24,7 @@ new class extends Component {
         return [
             'spaceId' => 'required|exists:spaces,id',
             'name' => ['required', new ValidRepositoryName],
-            'description' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ];
     }
 
@@ -41,9 +41,15 @@ new class extends Component {
 
     public function updated(string $attribute): void
     {
-        if ($attribute === 'spaceId' && empty($this->name)) return;
+        if (! in_array($attribute, ['name', 'spaceId'], true)) {
+            return;
+        }
 
-        $this->validate();
+        if (empty($this->name)) {
+            return;
+        }
+
+        $this->validateOnly($attribute);
     }
 
     public function create(): void
@@ -74,7 +80,7 @@ new class extends Component {
     <x-container class="flex flex-col grow p-0">
         <div class="px-6 lg:px-8 pt-6 lg:pt-8">
             <flux:breadcrumbs>
-                <flux:breadcrumbs.item>{{ auth()->user()->currentSpace()->name }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->space->name }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>Repositories</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>New</flux:breadcrumbs.item>
             </flux:breadcrumbs>
