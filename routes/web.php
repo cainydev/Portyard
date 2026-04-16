@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/auth/token', [TokenController::class, 'entry'])
-    ->middleware(AuthenticateAccount::class);
+    ->middleware(['throttle:docker-auth', AuthenticateAccount::class]);
 
-if (! app()->isProduction()) {
+if (app()->environment('local')) {
     Route::get('/token', function (Request $request) {
         $token = $request->has('scope') ?
             Token::withScope(Scope::fromString($request->get('scope'))) :
@@ -60,7 +60,7 @@ Route::name('website.')->group(function () {
     Route::livewire('/pricing', 'pages::website.pricing')->name('pricing');
 });
 
-Route::middleware('auth')
+Route::middleware(['auth', 'verified'])
     ->name('app.')
     ->group(function () {
         Route::prefix('spaces')->name('spaces.')->group(function () {
@@ -124,14 +124,27 @@ Route::middleware('auth')
                         Route::livewire('/webhooks', 'pages::app.space.repositories.webhooks')
                             ->name('webhooks');
 
+                        Route::livewire('/webhooks/{webhook}', 'pages::app.space.repositories.webhook-deliveries')
+                            ->name('webhooks.show');
+
                         Route::livewire('/tags', 'pages::app.space.repositories.tags')
                             ->name('tags');
                     });
             });
     });
 
-Route::get('/invitations/{token}/accept', AcceptInvitationController::class)->name('invitations.accept');
-Route::get('/invitations/{token}/decline', DeclineInvitationController::class)->name('invitations.decline');
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/invitations/{token}/accept', [AcceptInvitationController::class, 'show'])
+        ->name('invitations.accept.show');
+    Route::post('/invitations/{token}/accept', [AcceptInvitationController::class, 'store'])
+        ->middleware('auth')
+        ->name('invitations.accept');
+
+    Route::get('/invitations/{token}/decline', [DeclineInvitationController::class, 'show'])
+        ->name('invitations.decline.show');
+    Route::post('/invitations/{token}/decline', [DeclineInvitationController::class, 'destroy'])
+        ->name('invitations.decline');
+});
 
 Route::get('/status', function (Request $request) {
     return [

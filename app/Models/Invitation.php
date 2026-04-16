@@ -13,16 +13,19 @@ class Invitation extends Model
 {
     use HasUuids;
 
+    public const int DEFAULT_EXPIRY_DAYS = 14;
+
     protected $fillable = [
         'space_id',
         'email',
         'role',
         'token',
         'invited_by',
+        'expires_at',
     ];
 
     /**
-     * @return array{role: string, accepted_at: string, declined_at: string}
+     * @return array{role: string, accepted_at: string, declined_at: string, expires_at: string}
      */
     protected function casts(): array
     {
@@ -30,6 +33,7 @@ class Invitation extends Model
             'role' => Roles::class,
             'accepted_at' => 'datetime',
             'declined_at' => 'datetime',
+            'expires_at' => 'datetime',
         ];
     }
 
@@ -38,6 +42,10 @@ class Invitation extends Model
         static::creating(function (Invitation $invitation) {
             if (! $invitation->token) {
                 $invitation->token = Str::random(64);
+            }
+
+            if (! $invitation->expires_at) {
+                $invitation->expires_at = now()->addDays(self::DEFAULT_EXPIRY_DAYS);
             }
         });
     }
@@ -54,6 +62,15 @@ class Invitation extends Model
 
     public function scopePending(Builder $query): Builder
     {
-        return $query->whereNull('accepted_at')->whereNull('declined_at');
+        return $query->whereNull('accepted_at')
+            ->whereNull('declined_at')
+            ->where(function (Builder $query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            });
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at !== null && $this->expires_at->isPast();
     }
 }
