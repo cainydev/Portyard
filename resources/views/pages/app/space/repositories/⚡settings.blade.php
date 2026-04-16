@@ -2,6 +2,7 @@
 
 use App\Models\Repository;
 use App\Rules\ValidRepositoryName;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 new class extends Component {
@@ -23,8 +24,8 @@ new class extends Component {
     {
         return [
             'name' => ['required', new ValidRepositoryName],
-            'description' => 'nullable|string|max:255',
-            'overview' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
+            'overview' => 'nullable|string|max:50000',
         ];
     }
 
@@ -36,9 +37,7 @@ new class extends Component {
 
     public function save(): void
     {
-        if (!auth()->user()->can('manage-settings', $this->repository)) {
-            abort(403);
-        }
+        $this->authorize('manageSettings', $this->repository);
 
         $this->repository->update($this->validate());
 
@@ -47,12 +46,12 @@ new class extends Component {
 
     public function deleteRepository(): void
     {
-        if (!auth()->user()->can('delete', $this->repository)) {
-            abort(403);
-        }
+        $this->authorize('delete', $this->repository);
 
-        $this->repository->tags->each->delete();
-        $this->repository->delete();
+        DB::transaction(function () {
+            $this->repository->tags->each->delete();
+            $this->repository->delete();
+        });
 
         \Flux\Flux::toast("The repository {$this->repository->path} was successfully deleted.", 'Repository deleted', 2000, 'success');
 
@@ -63,7 +62,7 @@ new class extends Component {
 
 <x-layouts.repository :repository="$repository">
     <x-container inset>
-        @if(auth()->user()->can('manage-settings', $repository))
+        @if(auth()->user()->can('manageSettings', $repository))
             <x-app.settings.section :title="__('General')"
                                     :subtitle="__('Update the basic settings for this repository.')">
                 <x-slot:actions>

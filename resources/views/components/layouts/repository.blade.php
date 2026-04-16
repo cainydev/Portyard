@@ -47,9 +47,10 @@
                 {{ __('Collaborators') }}
             </flux:navbar.item>--}}
 
-            @if(auth()->user()->can('manage-settings', $repository))
+            @if(auth()->user()->can('manageSettings', $repository))
                 <flux:navbar.item
                     :href="route('app.space.repositories.webhooks', ['repository' => $repository])"
+                    :current="request()->routeIs('app.space.repositories.webhooks*')"
                     wire:navigate
                     icon="signal"
                 >
